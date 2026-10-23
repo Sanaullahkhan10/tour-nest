@@ -1,0 +1,19 @@
+# Packages that npm downloads. Huge, and anyone can re-install them.
+node_modules/
+
+# Secret settings (database password, API keys). NEVER commit these.
+.env
+.env.*
+# ...but the empty template file is safe and useful to share.
+!.env.example
+
+# Log files
+*.log
+npm-debug.log*
+
+# Test coverage reports (generated later)
+coverage/
+
+# Junk files that Windows and Mac create on their own
+Thumbs.db
+.DS_Store
