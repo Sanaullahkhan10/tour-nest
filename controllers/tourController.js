@@ -5,7 +5,7 @@ const AppError = require('../utils/appError');
 const { buildPaging } = require('../utils/paging');
 // The fields a visitor may filter by.
 const textFields = ['difficulty'];
-const numberFields = ['duration', 'maxGroupSize', 'price'];
+const numberFields = ['duration', 'maxGroupSize', 'price', 'ratingsAverage', 'ratingsQuantity'];
 
 // The only comparison words allowed inside brackets, like price[lte]=80000.
 const comparisonWords = ['gte', 'gt', 'lte', 'lt'];
@@ -80,7 +80,7 @@ function buildFilter(query) {
   return { filter: filter };
 }
 // The fields a visitor may sort by.
-const sortableFields = ['name', 'difficulty', 'duration', 'maxGroupSize', 'price'];
+const sortableFields = ['name', 'difficulty', 'duration', 'maxGroupSize', 'price', 'ratingsAverage', 'ratingsQuantity'];
 
 // Turns the sort text from the URL (for example "-price,duration") into a sort order
 // for the database. A minus sign in front of a name means biggest first.
@@ -134,6 +134,8 @@ const selectableFields = [
   'summary',
   'description',
   'startDates',
+  'ratingsAverage',
+  'ratingsQuantity',
 ];
 
 // Turns the fields text from the URL (for example "name,price") into a list of
