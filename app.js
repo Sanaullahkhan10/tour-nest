@@ -1,6 +1,7 @@
 // app.js - creates the Express app and connects URLs to the code that handles them.
 const express = require('express');
 const tourRoutes = require('./routes/tourRoutes');
+const userRoutes = require('./routes/userRoutes');
 const AppError = require('./utils/appError');
 const { globalErrorHandler } = require('./controllers/errorController');
 
@@ -23,6 +24,9 @@ app.get('/', (req, res) => {
 
 // Every URL that starts with /api/v1/tours is handled by the tour routes.
 app.use('/api/v1/tours', tourRoutes);
+
+// Every URL that starts with /api/v1/users is handled by the user routes.
+app.use('/api/v1/users', userRoutes);
 
 // If we reach this line, no route above matched the URL, so it is a 404.
 app.use((req, res, next) => {
