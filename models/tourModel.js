@@ -54,6 +54,23 @@ const tourSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+
+  // The average of all the ratings of the reviews of this tour, rounded to one decimal.
+  // 0 means "no reviews yet". The app updates it by itself when reviews change.
+  // Staff cannot set it by hand (the tour controller refuses it).
+  ratingsAverage: {
+    type: Number,
+    default: 0,
+    min: [0, 'ratingsAverage cannot be less than 0'],
+    max: [5, 'ratingsAverage cannot be more than 5'],
+  },
+
+  // How many reviews this tour has. The app updates this one too.
+  ratingsQuantity: {
+    type: Number,
+    default: 0,
+    min: [0, 'ratingsQuantity cannot be less than 0'],
+  },
 });
 
 // A model is made from the schema. Mongoose stores its documents in a

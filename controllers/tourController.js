@@ -235,10 +235,33 @@ async function getTour(req, res) {
   });
 }
 
+// These fields are worked out by the app from the reviews. Staff cannot set them by hand.
+const systemFields = ['ratingsAverage', 'ratingsQuantity'];
+
+// Refuses a body that tries to set a system field, or that uses MongoDB update words
+// like "$set". Without the second rule, {"$set": {"ratingsAverage": 5}} would get around the first.
+function refuseSystemFields(body) {
+  // No body, or a body that is not an object, is for the model to judge.
+  if (!body || typeof body !== 'object') {
+    return;
+  }
+
+  const keys = Object.keys(body);
+  for (let i = 0; i < keys.length; i++) {
+    if (keys[i].startsWith('$')) {
+      throw new AppError(`You cannot use ${keys[i]} here`, 400);
+    }
+    if (systemFields.includes(keys[i])) {
+      throw new AppError(`You cannot set ${keys[i]} by hand. It comes from the reviews`, 400);
+    }
+  }
+}
+
 // POST /api/v1/tours - creates a new tour from the JSON the visitor sends.
 async function createTour(req, res) {
   // req.body is the JSON the visitor sent. The model checks it before saving.
   // If a rule is broken, Mongoose throws an error and the global handler answers 400.
+  refuseSystemFields(req.body);
   const newTour = await Tour.create(req.body);
 
   // 201 means "created".
@@ -252,6 +275,7 @@ async function createTour(req, res) {
 
 // PATCH /api/v1/tours/:id - changes only the fields the visitor sends.
 async function updateTour(req, res) {
+  refuseSystemFields(req.body);
   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
     // Send back the tour AFTER the change (the default is the old one).
     returnDocument: 'after',
