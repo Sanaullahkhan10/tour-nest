@@ -8,4 +8,7 @@ const router = express.Router();
 // PATCH /api/v1/reviews/:id  (the writer changes their review; protect checks the login first)
 router.patch('/:id', authController.protect, reviewController.updateReview);
 
+// DELETE /api/v1/reviews/:id  (the writer or an admin removes a review)
+router.delete('/:id', authController.protect, reviewController.deleteReview);
+
 module.exports = router;

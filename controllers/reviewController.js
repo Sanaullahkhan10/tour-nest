@@ -187,8 +187,34 @@ async function updateReview(req, res) {
   });
 }
 
+// DELETE /api/v1/reviews/:id - the writer of a review, or an admin, removes it.
+async function deleteReview(req, res) {
+  // A badly shaped id makes Mongoose throw an error that the global handler turns into a 400.
+  const review = await Review.findById(req.params.id);
+  if (!review) {
+    throw new AppError('No review found with that id', 404);
+  }
+
+  // We compare with the user id saved inside the review. This also works when the writer
+  // has closed their account, so an admin can still remove such a review.
+  const isWriter = String(review.user) === String(req.user._id);
+  const isAdmin = req.user.role === 'admin';
+  if (!isWriter && !isAdmin) {
+    throw new AppError('You can delete only your own reviews', 403);
+  }
+
+  await Review.deleteOne({ _id: review._id });
+
+  // The tour has one review less, so its average and its count change.
+  await refreshTourRatings(review.tour);
+
+  // 204 means "done, and there is nothing to send back", so there is no body.
+  res.status(204).send();
+}
+
 module.exports = {
   createReview,
   getTourReviews,
   updateReview,
+  deleteReview,
 };
