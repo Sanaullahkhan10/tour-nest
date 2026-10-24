@@ -81,11 +81,12 @@ userSchema.pre('save', async function () {
   this.passwordConfirm = undefined;
 
   // For an existing user this is a password change, so we remember the time.
-  // We write one second earlier than now: a new login token is made right after
-  // this save, and the token time is counted in whole seconds. Without this
-  // small step back, the new token could look older than the change.
+  // The "protect" guard refuses every login token that was made before this moment
+  // (see changedPasswordAfter below). Both times are compared in whole seconds, and
+  // the new token we make right after this save has the same second or a later one,
+  // so the new login stays valid.
   if (!this.isNew) {
-    this.passwordChangedAt = new Date(Date.now() - 1000);
+    this.passwordChangedAt = new Date();
   }
 });
 
