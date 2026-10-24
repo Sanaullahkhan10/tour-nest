@@ -12,6 +12,53 @@
       "2027-05-20",
       "2027-09-18",
       "2027-10-09"
+    ],
+    "startLocation": {
+      "type": "Point",
+      "coordinates": [
+        74.6614,
+        36.3269
+      ],
+      "address": "Karimabad, Hunza, Gilgit-Baltistan",
+      "description": "Meeting point in the old town below Baltit Fort"
+    },
+    "locations": [
+      {
+        "type": "Point",
+        "coordinates": [
+          74.6614,
+          36.3269
+        ],
+        "description": "Old town walk and Baltit Fort",
+        "day": 1
+      },
+      {
+        "type": "Point",
+        "coordinates": [
+          74.8833,
+          36.4
+        ],
+        "description": "Village walk and orchards in Gulmit",
+        "day": 3
+      },
+      {
+        "type": "Point",
+        "coordinates": [
+          74.82,
+          36.69
+        ],
+        "description": "Market town near the border",
+        "day": 5
+      },
+      {
+        "type": "Point",
+        "coordinates": [
+          75.42,
+          36.85
+        ],
+        "description": "The high pass on the border with China",
+        "day": 6
+      }
     ]
   },
   {
@@ -26,6 +73,44 @@
       "2027-06-10",
       "2027-07-15",
       "2027-08-20"
+    ],
+    "startLocation": {
+      "type": "Point",
+      "coordinates": [
+        75.6337,
+        35.2979
+      ],
+      "address": "Skardu, Gilgit-Baltistan",
+      "description": "Meeting point in Skardu town"
+    },
+    "locations": [
+      {
+        "type": "Point",
+        "coordinates": [
+          75.6396,
+          35.3041
+        ],
+        "description": "Kharpocho Fort above the town",
+        "day": 1
+      },
+      {
+        "type": "Point",
+        "coordinates": [
+          75.65,
+          35.22
+        ],
+        "description": "Easy walk around Satpara Lake",
+        "day": 2
+      },
+      {
+        "type": "Point",
+        "coordinates": [
+          75.74,
+          35.426
+        ],
+        "description": "Shigar valley and its old fort",
+        "day": 4
+      }
     ]
   },
   {
@@ -40,6 +125,44 @@
       "2027-06-25",
       "2027-07-30",
       "2027-08-27"
+    ],
+    "startLocation": {
+      "type": "Point",
+      "coordinates": [
+        74.1044,
+        35.4206
+      ],
+      "address": "Chilas, Gilgit-Baltistan",
+      "description": "Meeting point in Chilas, before the drive towards Fairy Meadows"
+    },
+    "locations": [
+      {
+        "type": "Point",
+        "coordinates": [
+          74.1044,
+          35.4206
+        ],
+        "description": "Night in Chilas before the climb",
+        "day": 1
+      },
+      {
+        "type": "Point",
+        "coordinates": [
+          74.5842,
+          35.3869
+        ],
+        "description": "Camp on the green meadows",
+        "day": 2
+      },
+      {
+        "type": "Point",
+        "coordinates": [
+          74.5892,
+          35.2375
+        ],
+        "description": "Nanga Parbat itself, seen from the meadows",
+        "day": 3
+      }
     ]
   },
   {
@@ -55,6 +178,35 @@
       "2027-05-29",
       "2027-09-25",
       "2027-10-23"
+    ],
+    "startLocation": {
+      "type": "Point",
+      "coordinates": [
+        72.36,
+        34.7717
+      ],
+      "address": "Mingora, Swat, Khyber Pakhtunkhwa",
+      "description": "Meeting point in Mingora, the main town of Swat"
+    },
+    "locations": [
+      {
+        "type": "Point",
+        "coordinates": [
+          72.36,
+          34.7717
+        ],
+        "description": "Town walk and local bazaar",
+        "day": 1
+      },
+      {
+        "type": "Point",
+        "coordinates": [
+          72.58,
+          35.489
+        ],
+        "description": "The cool upper valley with river and pine forests",
+        "day": 4
+      }
     ]
   },
   {
@@ -69,6 +221,35 @@
       "2027-05-08",
       "2027-06-12",
       "2027-09-11"
+    ],
+    "startLocation": {
+      "type": "Point",
+      "coordinates": [
+        73.47,
+        34.37
+      ],
+      "address": "Muzaffarabad, Azad Jammu and Kashmir",
+      "description": "Meeting point in the capital, where the Neelum meets the Jhelum"
+    },
+    "locations": [
+      {
+        "type": "Point",
+        "coordinates": [
+          73.47,
+          34.37
+        ],
+        "description": "Rest and local food",
+        "day": 1
+      },
+      {
+        "type": "Point",
+        "coordinates": [
+          74.18,
+          34.8
+        ],
+        "description": "Riverside village high in the Neelum Valley",
+        "day": 4
+      }
     ]
   },
   {
@@ -83,6 +264,35 @@
       "2027-07-09",
       "2027-08-06",
       "2027-08-27"
+    ],
+    "startLocation": {
+      "type": "Point",
+      "coordinates": [
+        75.6337,
+        35.2979
+      ],
+      "address": "Skardu, Gilgit-Baltistan",
+      "description": "Meeting point in Skardu before the drive up to the plateau"
+    },
+    "locations": [
+      {
+        "type": "Point",
+        "coordinates": [
+          75.6337,
+          35.2979
+        ],
+        "description": "Last supplies and rest in Skardu",
+        "day": 1
+      },
+      {
+        "type": "Point",
+        "coordinates": [
+          75.2367,
+          34.9914
+        ],
+        "description": "Camp near Sheosar Lake on the plateau",
+        "day": 3
+      }
     ]
   }
 ]

@@ -2,6 +2,67 @@
 const mongoose = require('mongoose');
 
 // A schema is the "shape" of one tour: which fields it has and the rules for each.
+// The parts of a GeoJSON "Point" that MongoDB understands. It is a function, so each schema
+// gets its own copy. coordinates are [longitude, latitude]: LONGITUDE COMES FIRST.
+// (Google Maps shows the latitude first, so be careful when you copy numbers from it.)
+function pointFields() {
+  return {
+    type: {
+      type: String,
+      enum: { values: ['Point'], message: 'type must be Point' },
+      default: 'Point',
+    },
+    coordinates: {
+      type: [Number],
+      validate: {
+        validator: function (coordinates) {
+          return coordinates.length === 2 && coordinates[0] >= -180 && coordinates[0] <= 180 && coordinates[1] >= -90 && coordinates[1] <= 90;
+        },
+        message: 'coordinates must be [longitude, latitude], longitude from -180 to 180 and latitude from -90 to 90',
+      },
+    },
+  };
+}
+
+// The place where a tour starts.
+const startLocationSchema = new mongoose.Schema(
+  {
+    ...pointFields(),
+    address: {
+      type: String,
+      required: [true, 'A start location needs an address'],
+      trim: true,
+      maxlength: [200, 'An address can have at most 200 characters'],
+    },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: [200, 'A description can have at most 200 characters'],
+    },
+  },
+  { _id: false }
+);
+
+// One place that a tour visits, on a certain day of the tour.
+const stopSchema = new mongoose.Schema(
+  {
+    ...pointFields(),
+    description: {
+      type: String,
+      required: [true, 'A location needs a description'],
+      trim: true,
+      maxlength: [200, 'A description can have at most 200 characters'],
+    },
+    day: {
+      type: Number,
+      required: [true, 'A location needs a day'],
+      min: [1, 'day cannot be less than 1'],
+      validate: { validator: Number.isInteger, message: 'day must be a whole number' },
+    },
+  },
+  { _id: false }
+);
+
 const tourSchema = new mongoose.Schema({
   // The tour name: text, required, no extra spaces, 5 to 60 characters, no duplicates.
   name: {
@@ -84,7 +145,24 @@ const tourSchema = new mongoose.Schema({
       message: 'A tour can have at most 30 start dates',
     },
   },
+
+  // The place where the tour starts. A tour may have no start location.
+  startLocation: startLocationSchema,
+
+  // The places the tour visits, in the order of its days. At most 20.
+  locations: {
+    type: [stopSchema],
+    validate: {
+      validator: function (stops) {
+        return stops.length <= 20;
+      },
+      message: 'A tour can have at most 20 locations',
+    },
+  },
 });
+
+// The 2dsphere index lets MongoDB answer "which tours start near this point" quickly.
+tourSchema.index({ startLocation: '2dsphere' });
 
 // A model is made from the schema. Mongoose stores its documents in a
 // collection called "tours" (the model name, lowercased and made plural).

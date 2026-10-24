@@ -136,6 +136,8 @@ const selectableFields = [
   'startDates',
   'ratingsAverage',
   'ratingsQuantity',
+  'startLocation',
+  'locations',
 ];
 
 // Turns the fields text from the URL (for example "name,price") into a list of
