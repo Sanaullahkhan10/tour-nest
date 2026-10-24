@@ -1,6 +1,8 @@
 ﻿// app.js - creates the Express app and connects URLs to the code that handles them.
 const express = require('express');
 const tourRoutes = require('./routes/tourRoutes');
+const AppError = require('./utils/appError');
+const { globalErrorHandler } = require('./controllers/errorController');
 
 const app = express();
 
@@ -21,5 +23,13 @@ app.get('/', (req, res) => {
 
 // Every URL that starts with /api/v1/tours is handled by the tour routes.
 app.use('/api/v1/tours', tourRoutes);
+
+// If we reach this line, no route above matched the URL, so it is a 404.
+app.use((req, res, next) => {
+  next(new AppError(`Cannot find ${req.originalUrl} on this server`, 404));
+});
+
+// Every error from anywhere in the app ends up here. It must stay the last one.
+app.use(globalErrorHandler);
 
 module.exports = app;
