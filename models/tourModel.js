@@ -71,6 +71,19 @@ const tourSchema = new mongoose.Schema({
     default: 0,
     min: [0, 'ratingsQuantity cannot be less than 0'],
   },
+
+  // The days a tour starts. One tour can start on several days.
+  // Dates are sent as text like "2027-06-25" and Mongoose turns them into real dates.
+  // A tour without dates has an empty list.
+  startDates: {
+    type: [Date],
+    validate: {
+      validator: function (dates) {
+        return dates.length <= 30;
+      },
+      message: 'A tour can have at most 30 start dates',
+    },
+  },
 });
 
 // A model is made from the schema. Mongoose stores its documents in a

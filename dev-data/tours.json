@@ -6,7 +6,13 @@
     "difficulty": "easy",
     "price": 95000,
     "summary": "Seven relaxed days among apricot orchards, old forts and mountain views in Hunza.",
-    "description": "Start in Karimabad and walk up to the old Baltit Fort. Take a boat across Attabad Lake, meet local families over tea, and watch the peaks change colour at sunset. Slow days, short walks and plenty of time for photos."
+    "description": "Start in Karimabad and walk up to the old Baltit Fort. Take a boat across Attabad Lake, meet local families over tea, and watch the peaks change colour at sunset. Slow days, short walks and plenty of time for photos.",
+    "startDates": [
+      "2027-04-15",
+      "2027-05-20",
+      "2027-09-18",
+      "2027-10-09"
+    ]
   },
   {
     "name": "Skardu and the Shangrila Lakes",
@@ -15,7 +21,12 @@
     "difficulty": "medium",
     "price": 110000,
     "summary": "Lakes, sand dunes and the Shigar valley around Skardu, with an easy walk every day.",
-    "description": "Stay near Lower Kachura Lake, explore the cold desert dunes near Skardu and visit the old fort at Shigar. Each day has an easy to moderate walk, and the evenings are for tea and stargazing."
+    "description": "Stay near Lower Kachura Lake, explore the cold desert dunes near Skardu and visit the old fort at Shigar. Each day has an easy to moderate walk, and the evenings are for tea and stargazing.",
+    "startDates": [
+      "2027-06-10",
+      "2027-07-15",
+      "2027-08-20"
+    ]
   },
   {
     "name": "Fairy Meadows and Nanga Parbat View",
@@ -24,7 +35,12 @@
     "difficulty": "medium",
     "price": 75000,
     "summary": "A short, steep trek to green meadows facing the huge face of Nanga Parbat.",
-    "description": "Drive on a rough jeep track, then walk uphill to Fairy Meadows and stay in a camp or hut. If the weather is clear, the mountain is in front of you all day. The walk is steep and needs good fitness and proper shoes."
+    "description": "Drive on a rough jeep track, then walk uphill to Fairy Meadows and stay in a camp or hut. If the weather is clear, the mountain is in front of you all day. The walk is steep and needs good fitness and proper shoes.",
+    "startDates": [
+      "2027-06-25",
+      "2027-07-30",
+      "2027-08-27"
+    ]
   },
   {
     "name": "Swat Valley and Kalam Retreat",
@@ -33,7 +49,13 @@
     "difficulty": "easy",
     "price": 65000,
     "summary": "Green hills, rivers and mountain villages in Swat, ending in the cool upper valley of Kalam.",
-    "description": "Drive through the Swat valley with stops at riverside villages and old markets. In Kalam we take forest walks and visit a mountain lake if the road is open. A gentle trip for families and first-time travellers."
+    "description": "Drive through the Swat valley with stops at riverside villages and old markets. In Kalam we take forest walks and visit a mountain lake if the road is open. A gentle trip for families and first-time travellers.",
+    "startDates": [
+      "2027-04-24",
+      "2027-05-29",
+      "2027-09-25",
+      "2027-10-23"
+    ]
   },
   {
     "name": "Neelum Valley Riverside Escape",
@@ -42,7 +64,12 @@
     "difficulty": "easy",
     "price": 80000,
     "summary": "Riverside stays and forest walks in the Neelum Valley of Azad Kashmir.",
-    "description": "Follow the Neelum river upstream, with stops at small towns and viewpoints along the way. We sleep close to the water, walk through pine forest and spend one day in a high village. The pace is slow and the views are long."
+    "description": "Follow the Neelum river upstream, with stops at small towns and viewpoints along the way. We sleep close to the water, walk through pine forest and spend one day in a high village. The pace is slow and the views are long.",
+    "startDates": [
+      "2027-05-08",
+      "2027-06-12",
+      "2027-09-11"
+    ]
   },
   {
     "name": "Deosai Plains High Camp",
@@ -51,6 +78,11 @@
     "difficulty": "difficult",
     "price": 90000,
     "summary": "Camp on the high Deosai plateau, one of the highest plains in the world, far from any city.",
-    "description": "Drive up from Skardu to the open plateau and camp under a huge sky. Days are for walking across the grass and, in summer, the wild flowers. It is cold and high, so the nights are chilly and the trip needs good health and warm clothes."
+    "description": "Drive up from Skardu to the open plateau and camp under a huge sky. Days are for walking across the grass and, in summer, the wild flowers. It is cold and high, so the nights are chilly and the trip needs good health and warm clothes.",
+    "startDates": [
+      "2027-07-09",
+      "2027-08-06",
+      "2027-08-27"
+    ]
   }
 ]

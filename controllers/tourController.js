@@ -133,6 +133,7 @@ const selectableFields = [
   'price',
   'summary',
   'description',
+  'startDates',
 ];
 
 // Turns the fields text from the URL (for example "name,price") into a list of
