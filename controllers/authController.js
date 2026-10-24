@@ -1,8 +1,8 @@
-// controllers/authController.js - signing up, logging in and logging out.
+// controllers/authController.js - signing up, logging in and out, and guarding routes.
 const bcrypt = require('bcryptjs');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
-const { signToken, cookieOptions, cookieName } = require('../utils/token');
+const { signToken, verifyToken, cookieOptions, cookieName } = require('../utils/token');
 
 // The only fields a new visitor may fill in. Anything else they send is ignored,
 // so nobody can send "role": "admin" and make themselves an admin.
@@ -103,8 +103,58 @@ function logout(req, res) {
   });
 }
 
+// A guard for routes. It runs before the route's own function and lets the visitor
+// through only if the login cookie holds a good token of a user who still exists.
+async function protect(req, res, next) {
+  // 1. The token must be in the login cookie (cookie-parser puts cookies in req.cookies).
+  const token = req.cookies[cookieName];
+  if (!token) {
+    throw new AppError('You are not logged in. Please log in to get access', 401);
+  }
+  // A cookie that looks like JSON can turn into an object, and a token is always text.
+  if (typeof token !== 'string') {
+    throw new AppError('Your login is not valid or has expired. Please log in again', 401);
+  }
+
+  // 2. The token must be real, not changed, and not too old.
+  let payload;
+  try {
+    payload = verifyToken(token);
+  } catch (error) {
+    // Only a bad token means "log in again". Any other error is our own problem.
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      throw new AppError('Your login is not valid or has expired. Please log in again', 401);
+    }
+    throw error;
+  }
+
+  // 3. The user must still exist (the account may have been deleted after the login).
+  const user = await User.findById(payload.id);
+  if (!user) {
+    throw new AppError('The user of this login no longer exists', 401);
+  }
+
+  // 4. Remember who is asking, so the next functions can use req.user.
+  req.user = user;
+  next();
+}
+
+// Lets only the named roles through, for example restrictTo('admin', 'lead-guide').
+// "...allowedRoles" collects all the names we pass into one list.
+// It must run after protect, because protect is what sets req.user.
+function restrictTo(...allowedRoles) {
+  return function (req, res, next) {
+    if (!allowedRoles.includes(req.user.role)) {
+      throw new AppError('You do not have permission to do this', 403);
+    }
+    next();
+  };
+}
+
 module.exports = {
   signup,
   login,
   logout,
+  protect,
+  restrictTo,
 };

@@ -1,5 +1,6 @@
 // app.js - creates the Express app and connects URLs to the code that handles them.
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const tourRoutes = require('./routes/tourRoutes');
 const userRoutes = require('./routes/userRoutes');
 const AppError = require('./utils/appError');
@@ -13,6 +14,9 @@ app.set('query parser', 'simple');
 
 // Lets the app read JSON sent in the body of a request (we need this for POST).
 app.use(express.json());
+
+// Reads the cookies the browser sends and puts them in req.cookies (we need the login cookie).
+app.use(cookieParser());
 
 // The home page of the API.
 app.get('/', (req, res) => {
