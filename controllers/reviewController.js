@@ -124,7 +124,71 @@ async function getTourReviews(req, res) {
   });
 }
 
+// Updates the rating numbers of a tour. The review is already saved by then, so if this
+// fails we only log it instead of turning a saved change into an error.
+// (dev-data/recalculate-ratings.js can fix the numbers later.)
+async function refreshTourRatings(tourId) {
+  try {
+    await Review.updateTourRatings(tourId);
+  } catch (error) {
+    console.error('Could not update the rating of the tour:', error.message);
+  }
+}
+
+// PATCH /api/v1/reviews/:id - the writer of a review changes its text or its rating.
+async function updateReview(req, res) {
+  const body = req.body || {};
+  const keys = Object.keys(body);
+
+  if (keys.length === 0) {
+    throw new AppError('Please give a review or a rating to change', 400);
+  }
+
+  // Check every field before we change anything.
+  for (let i = 0; i < keys.length; i++) {
+    if (!reviewFields.includes(keys[i])) {
+      throw new AppError(`You cannot change ${keys[i]} in a review`, 400);
+    }
+  }
+  if (body.review !== undefined && typeof body.review !== 'string') {
+    throw new AppError('review must be text', 400);
+  }
+  if (body.rating !== undefined && typeof body.rating !== 'number') {
+    throw new AppError('rating must be a number', 400);
+  }
+
+  // A badly shaped id makes Mongoose throw an error that the global handler turns into a 400.
+  const review = await Review.findById(req.params.id);
+  if (!review) {
+    throw new AppError('No review found with that id', 404);
+  }
+
+  // Only the writer may change a review. Not even an admin can put new words in someone's mouth.
+  if (String(review.user) !== String(req.user._id)) {
+    throw new AppError('You can change only your own reviews', 403);
+  }
+
+  // save() runs the model rules (empty text, rating from 1 to 5, whole number).
+  for (let i = 0; i < keys.length; i++) {
+    review[keys[i]] = body[keys[i]];
+  }
+  await review.save();
+
+  // The average of the tour only changes when a rating changes.
+  if (keys.includes('rating')) {
+    await refreshTourRatings(review.tour);
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      review: review,
+    },
+  });
+}
+
 module.exports = {
   createReview,
   getTourReviews,
+  updateReview,
 };
