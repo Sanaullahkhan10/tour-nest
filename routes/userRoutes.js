@@ -23,4 +23,7 @@ router.patch('/updateMyPassword', authController.protect, authController.updateM
 // PATCH /api/v1/users/updateMe  (the logged-in user changes their name or email)
 router.patch('/updateMe', authController.protect, userController.updateMe);
 
+// DELETE /api/v1/users/deleteMe  (the logged-in user closes their account)
+router.delete('/deleteMe', authController.protect, userController.deleteMe);
+
 module.exports = router;

@@ -61,6 +61,14 @@ const userSchema = new mongoose.Schema({
       message: 'The two passwords are not the same',
     },
   },
+  // "false" means the user deleted their own account. We keep the data, but hide the user.
+  // Old users that have no value here count as active.
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
+
   // When the password was changed the last time. A new user has no value here.
   passwordChangedAt: {
     type: Date,
@@ -90,6 +98,13 @@ userSchema.pre('save', async function () {
   }
 });
 
+// Hides deleted users from every search that starts with "find" (find, findOne, findById ...).
+// "$ne: false" also matches old users that have no "active" value at all.
+// We use "where" and not "find" here, because "find" would turn a findOne search into a find search.
+userSchema.pre(/^find/, function () {
+  this.where({ active: { $ne: false } });
+});
+
 // Checks a typed password against the saved hash. We pass the hash in ourselves
 // because the password field is hidden from normal searches.
 userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
@@ -116,6 +131,7 @@ userSchema.set('toJSON', {
     delete ret.password;
     delete ret.passwordConfirm;
     delete ret.passwordChangedAt;
+    delete ret.active;
     delete ret.__v;
     return ret;
   },

@@ -1,5 +1,7 @@
 // controllers/userController.js - the functions that handle user requests.
+const User = require('../models/userModel');
 const AppError = require('../utils/appError');
+const { cookieName, cookieOptions } = require('../utils/token');
 
 // The only fields a user may change about themselves here.
 const updatableFields = ['name', 'email'];
@@ -63,7 +65,21 @@ async function updateMe(req, res) {
   });
 }
 
+// DELETE /api/v1/users/deleteMe - the logged-in user closes their own account.
+async function deleteMe(req, res) {
+  // We do not remove the user from the database. We only mark the account as not active.
+  // From now on the user model hides this user from every search.
+  await User.updateOne({ _id: req.user._id }, { active: false });
+
+  // Log this browser out too.
+  res.clearCookie(cookieName, cookieOptions());
+
+  // 204 means "done, and there is nothing to send back", so there is no body.
+  res.status(204).send();
+}
+
 module.exports = {
   getMe,
   updateMe,
+  deleteMe,
 };
