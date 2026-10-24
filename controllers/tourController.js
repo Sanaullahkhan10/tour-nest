@@ -88,6 +88,51 @@ function buildFilter(query) {
 
   return { filter: filter };
 }
+// The fields a visitor may sort by.
+const sortableFields = ['name', 'difficulty', 'duration', 'maxGroupSize', 'price'];
+
+// Turns the sort text from the URL (for example "-price,duration") into a sort order
+// for the database. A minus sign in front of a name means biggest first.
+// If something is wrong it returns an error message.
+function buildSort(sortText) {
+  const sort = {};
+
+  // No sort in the URL means we only use the tie-breaker below.
+  if (sortText !== undefined) {
+    // The value must be one single piece of text (not a list).
+    if (typeof sortText !== 'string') {
+      return { error: 'Use sort only once' };
+    }
+
+    const parts = sortText.split(',');
+    for (let i = 0; i < parts.length; i++) {
+      let fieldName = parts[i];
+      let direction = 1; // 1 means smallest first
+
+      if (fieldName.startsWith('-')) {
+        direction = -1; // -1 means biggest first
+        fieldName = fieldName.slice(1);
+      }
+
+      if (fieldName === '') {
+        return { error: 'sort has an empty name' };
+      }
+      if (!sortableFields.includes(fieldName)) {
+        return { error: `You cannot sort by ${fieldName}` };
+      }
+      if (sort[fieldName] !== undefined) {
+        return { error: `${fieldName} is listed twice in sort` };
+      }
+
+      sort[fieldName] = direction;
+    }
+  }
+
+  // Last tie-breaker: tours with the same values always come in the same order.
+  sort._id = 1;
+
+  return { sort: sort };
+}
 // GET /api/v1/tours - sends back all the tours.
 async function getAllTours(req, res) {
   try {
@@ -99,7 +144,15 @@ async function getAllTours(req, res) {
       });
     }
 
-    const tours = await Tour.find(result.filter);
+    const sortResult = buildSort(req.query.sort);
+    if (sortResult.error) {
+      return res.status(400).json({
+        status: 'fail',
+        message: sortResult.error,
+      });
+    }
+
+    const tours = await Tour.find(result.filter).sort(sortResult.sort);
 
     res.status(200).json({
       status: 'success',
@@ -296,5 +349,6 @@ module.exports = {
   updateTour,
   deleteTour,
 };
+
 
 
