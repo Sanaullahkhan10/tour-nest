@@ -35,4 +35,7 @@ router.get('/', authController.protect, authController.restrictTo('admin'), user
 // GET /api/v1/users/:id  (one user)
 router.get('/:id', authController.protect, authController.restrictTo('admin'), userController.getUser);
 
+// PATCH /api/v1/users/:id  (an admin changes the role of a user)
+router.patch('/:id', authController.protect, authController.restrictTo('admin'), userController.updateUser);
+
 module.exports = router;

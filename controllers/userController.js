@@ -173,10 +173,59 @@ async function getUser(req, res) {
   });
 }
 
+// PATCH /api/v1/users/:id - an admin changes the role of a user (for admins only).
+async function updateUser(req, res) {
+  // An admin cannot change their own role. Otherwise the last admin could take away
+  // their own rights and leave the site with no admin at all.
+  if (req.params.id === String(req.user._id)) {
+    throw new AppError('You cannot change your own role', 400);
+  }
+
+  const body = req.body || {};
+  const keys = Object.keys(body);
+
+  if (keys.length === 0) {
+    throw new AppError('Please give the role to set', 400);
+  }
+
+  // The role is the only thing an admin may change here (never a password or a name).
+  for (let i = 0; i < keys.length; i++) {
+    if (keys[i] !== 'role') {
+      throw new AppError(`You cannot change ${keys[i]} here`, 400);
+    }
+  }
+
+  // The role must be plain text, and one of the roles we know.
+  if (typeof body.role !== 'string') {
+    throw new AppError('role must be text', 400);
+  }
+  if (!validRoles.includes(body.role)) {
+    throw new AppError('role must be user, guide, lead-guide or admin', 400);
+  }
+
+  // The user model hides deleted users, so they are "not found" too.
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    throw new AppError('No user found with that id', 404);
+  }
+
+  // save() runs the model rules before storing the new role.
+  user.role = body.role;
+  await user.save();
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: user,
+    },
+  });
+}
+
 module.exports = {
   getMe,
   updateMe,
   deleteMe,
   getAllUsers,
   getUser,
+  updateUser,
 };
