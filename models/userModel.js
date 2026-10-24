@@ -1,4 +1,4 @@
-﻿// models/userModel.js - the shape and the rules of one user.
+// models/userModel.js - the shape and the rules of one user.
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');

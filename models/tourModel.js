@@ -1,4 +1,4 @@
-﻿// models/tourModel.js - describes what a tour looks like in the database.
+// models/tourModel.js - describes what a tour looks like in the database.
 const mongoose = require('mongoose');
 
 // A schema is the "shape" of one tour: which fields it has and the rules for each.

@@ -1,4 +1,4 @@
-﻿// utils/database.js - connects Mongoose to MongoDB Atlas using the settings in .env.
+// utils/database.js - connects Mongoose to MongoDB Atlas using the settings in .env.
 const mongoose = require('mongoose');
 
 async function connectToDatabase() {

@@ -1,4 +1,4 @@
-﻿// dev-data/seed.js - loads the sample tours into the database, or deletes them.
+// dev-data/seed.js - loads the sample tours into the database, or deletes them.
 //
 // How to run (from the project folder):
 //   node --env-file-if-exists=.env dev-data/seed.js --import

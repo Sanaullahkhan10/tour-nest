@@ -1,4 +1,4 @@
-﻿// routes/tourRoutes.js - connects tour URLs to the functions in the controller.
+// routes/tourRoutes.js - connects tour URLs to the functions in the controller.
 const express = require('express');
 const tourController = require('../controllers/tourController');
 

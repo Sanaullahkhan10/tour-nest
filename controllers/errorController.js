@@ -1,4 +1,4 @@
-﻿// controllers/errorController.js - turns every error into a clear JSON answer.
+// controllers/errorController.js - turns every error into a clear JSON answer.
 const AppError = require('../utils/appError');
 
 // Changes errors we know about (from Mongoose or Express) into friendly AppErrors.

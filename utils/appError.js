@@ -1,4 +1,4 @@
-﻿// utils/appError.js - an error that knows its HTTP status code.
+// utils/appError.js - an error that knows its HTTP status code.
 class AppError extends Error {
   constructor(message, statusCode) {
     super(message);

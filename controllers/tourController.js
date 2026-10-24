@@ -1,4 +1,4 @@
-﻿// controllers/tourController.js - the functions that handle tour requests.
+// controllers/tourController.js - the functions that handle tour requests.
 const Tour = require('../models/tourModel');
 const AppError = require('../utils/appError');
 // The fields a visitor may filter by.

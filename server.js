@@ -1,4 +1,4 @@
-﻿// server.js - connects to the database first, then starts the web server.
+// server.js - connects to the database first, then starts the web server.
 const app = require('./app');
 const connectToDatabase = require('./utils/database');
 

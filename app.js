@@ -1,4 +1,4 @@
-﻿// app.js - creates the Express app and connects URLs to the code that handles them.
+// app.js - creates the Express app and connects URLs to the code that handles them.
 const express = require('express');
 const tourRoutes = require('./routes/tourRoutes');
 const AppError = require('./utils/appError');
