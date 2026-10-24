@@ -20,4 +20,7 @@ router.get('/me', authController.protect, userController.getMe);
 // PATCH /api/v1/users/updateMyPassword  (the logged-in user chooses a new password)
 router.patch('/updateMyPassword', authController.protect, authController.updateMyPassword);
 
+// PATCH /api/v1/users/updateMe  (the logged-in user changes their name or email)
+router.patch('/updateMe', authController.protect, userController.updateMe);
+
 module.exports = router;
