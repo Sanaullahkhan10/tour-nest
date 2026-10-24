@@ -28,4 +28,7 @@ router.delete('/:id', authController.protect, authController.restrictTo('admin',
 // POST /api/v1/tours/:tourId/reviews  (a logged-in user writes a review of this tour)
 router.post('/:tourId/reviews', authController.protect, authController.restrictTo('user'), reviewController.createReview);
 
+// GET /api/v1/tours/:tourId/reviews  (anyone may read the reviews of a tour)
+router.get('/:tourId/reviews', reviewController.getTourReviews);
+
 module.exports = router;
