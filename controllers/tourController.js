@@ -3,6 +3,7 @@ const Tour = require('../models/tourModel');
 const Review = require('../models/reviewModel');
 const AppError = require('../utils/appError');
 const { buildPaging } = require('../utils/paging');
+const { readUnit, readDistance, readLatLng, distanceToRadians } = require('../utils/geo');
 // The fields a visitor may filter by.
 const textFields = ['difficulty'];
 const numberFields = ['duration', 'maxGroupSize', 'price', 'ratingsAverage', 'ratingsQuantity'];
@@ -418,10 +419,78 @@ async function getMonthlyPlan(req, res) {
   });
 }
 
+// GET /api/v1/tours/tours-within/:distance/center/:latlng/unit/:unit
+// Finds the tours that START within a distance of a place, for example
+// /api/v1/tours/tours-within/200/center/36.3269,74.6614/unit/km
+async function getToursWithin(req, res) {
+  // 1. Check the three parts of the URL.
+  const distanceResult = readDistance(req.params.distance);
+  if (distanceResult.error) {
+    throw new AppError(distanceResult.error, 400);
+  }
+
+  const placeResult = readLatLng(req.params.latlng);
+  if (placeResult.error) {
+    throw new AppError(placeResult.error, 400);
+  }
+
+  const unitResult = readUnit(req.params.unit);
+  if (unitResult.error) {
+    throw new AppError(unitResult.error, 400);
+  }
+
+  // 2. Only page and limit are understood after the question mark.
+  const keys = Object.keys(req.query);
+  for (let i = 0; i < keys.length; i++) {
+    if (keys[i] !== 'page' && keys[i] !== 'limit') {
+      throw new AppError(`You cannot use ${keys[i]} here`, 400);
+    }
+  }
+
+  const paging = buildPaging(req.query.page, req.query.limit);
+  if (paging.error) {
+    throw new AppError(paging.error, 400);
+  }
+
+  // 3. "Inside a circle on the earth". The URL has latitude first, but MongoDB wants
+  // longitude first, so we swap them here.
+  const radius = distanceToRadians(distanceResult.distance, unitResult.unit);
+  const filter = {
+    startLocation: {
+      $geoWithin: {
+        $centerSphere: [[placeResult.longitude, placeResult.latitude], radius],
+      },
+    },
+  };
+
+  const tours = await Tour.find(filter)
+    .sort({ _id: 1 })
+    .select({ __v: 0 })
+    .skip(paging.skip)
+    .limit(paging.limit);
+
+  // How many tours are inside the circle in total (not only on this page).
+  const total = await Tour.countDocuments(filter);
+  const totalPages = Math.ceil(total / paging.limit);
+
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    page: paging.page,
+    limit: paging.limit,
+    total: total,
+    totalPages: totalPages,
+    data: {
+      tours: tours,
+    },
+  });
+}
+
 module.exports = {
   getAllTours,
   getTourStats,
   getMonthlyPlan,
+  getToursWithin,
   getTour,
   createTour,
   updateTour,
