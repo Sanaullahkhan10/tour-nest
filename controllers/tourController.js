@@ -12,10 +12,94 @@ function joinValidationMessages(error) {
   return messages.join('. ');
 }
 
+// The fields a visitor may filter by.
+const textFields = ['difficulty'];
+const numberFields = ['duration', 'maxGroupSize', 'price'];
+
+// The only comparison words allowed inside brackets, like price[lte]=80000.
+const comparisonWords = ['gte', 'gt', 'lte', 'lt'];
+
+// Words in the URL that are not filters (we use them in later steps).
+const reservedWords = ['sort', 'fields', 'page', 'limit'];
+
+// Turns the URL query (for example ?difficulty=easy&price[lte]=80000)
+// into a filter for the database. If something is wrong it returns an error message.
+function buildFilter(query) {
+  const filter = {};
+  const keys = Object.keys(query);
+
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const value = query[key];
+
+    // Sorting and paging words are not filters, so we skip them.
+    if (reservedWords.includes(key)) {
+      continue;
+    }
+
+    // Split "price[lte]" into the field name "price" and the comparison word "lte".
+    let fieldName = key;
+    let comparison = null;
+    const bracketStart = key.indexOf('[');
+    if (bracketStart !== -1) {
+      if (!key.endsWith(']')) {
+        return { error: `${key} is not a valid filter` };
+      }
+      fieldName = key.slice(0, bracketStart);
+      comparison = key.slice(bracketStart + 1, key.length - 1);
+    }
+
+    // Only the allowed fields can be filtered.
+    const isTextField = textFields.includes(fieldName);
+    const isNumberField = numberFields.includes(fieldName);
+    if (!isTextField && !isNumberField) {
+      return { error: `You cannot filter by ${fieldName}` };
+    }
+
+    // The value must be one single piece of text (not a list).
+    if (typeof value !== 'string') {
+      return { error: `Use ${key} only once, with one value` };
+    }
+
+    // Number fields need a real number.
+    let finalValue = value;
+    if (isNumberField) {
+      finalValue = Number(value);
+      if (value.trim() === '' || Number.isNaN(finalValue)) {
+        return { error: `${key} must be a number` };
+      }
+    }
+
+    if (comparison === null) {
+      // Exact match, like difficulty=easy.
+      filter[fieldName] = finalValue;
+    } else {
+      // Comparison, like price[lte]=80000. Only numbers, only the allowed words.
+      if (!isNumberField || !comparisonWords.includes(comparison)) {
+        return { error: `You cannot use [${comparison}] with ${fieldName}` };
+      }
+      // MongoDB writes comparisons with a dollar sign: $lte, $gte, $lt, $gt.
+      if (typeof filter[fieldName] !== 'object') {
+        filter[fieldName] = {};
+      }
+      filter[fieldName]['$' + comparison] = finalValue;
+    }
+  }
+
+  return { filter: filter };
+}
 // GET /api/v1/tours - sends back all the tours.
 async function getAllTours(req, res) {
   try {
-    const tours = await Tour.find();
+    const result = buildFilter(req.query);
+    if (result.error) {
+      return res.status(400).json({
+        status: 'fail',
+        message: result.error,
+      });
+    }
+
+    const tours = await Tour.find(result.filter);
 
     res.status(200).json({
       status: 'success',
@@ -212,4 +296,5 @@ module.exports = {
   updateTour,
   deleteTour,
 };
+
 

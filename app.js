@@ -4,7 +4,11 @@ const tourRoutes = require('./routes/tourRoutes');
 
 const app = express();
 
-// Lets the app read JSON sent in the body of a request (we need this for POST later).
+// Read the URL query the simple way: "price[lte]=80000" stays one plain name.
+// We read those names ourselves in the tour controller, so only allowed filters work.
+app.set('query parser', 'simple');
+
+// Lets the app read JSON sent in the body of a request (we need this for POST).
 app.use(express.json());
 
 // The home page of the API.
