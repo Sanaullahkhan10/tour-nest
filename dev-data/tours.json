@@ -1,0 +1,56 @@
+[
+  {
+    "name": "The Hunza Valley Explorer",
+    "duration": 7,
+    "maxGroupSize": 12,
+    "difficulty": "easy",
+    "price": 95000,
+    "summary": "Seven relaxed days among apricot orchards, old forts and mountain views in Hunza.",
+    "description": "Start in Karimabad and walk up to the old Baltit Fort. Take a boat across Attabad Lake, meet local families over tea, and watch the peaks change colour at sunset. Slow days, short walks and plenty of time for photos."
+  },
+  {
+    "name": "Skardu and the Shangrila Lakes",
+    "duration": 6,
+    "maxGroupSize": 10,
+    "difficulty": "medium",
+    "price": 110000,
+    "summary": "Lakes, sand dunes and the Shigar valley around Skardu, with an easy walk every day.",
+    "description": "Stay near Lower Kachura Lake, explore the cold desert dunes near Skardu and visit the old fort at Shigar. Each day has an easy to moderate walk, and the evenings are for tea and stargazing."
+  },
+  {
+    "name": "Fairy Meadows and Nanga Parbat View",
+    "duration": 4,
+    "maxGroupSize": 8,
+    "difficulty": "medium",
+    "price": 75000,
+    "summary": "A short, steep trek to green meadows facing the huge face of Nanga Parbat.",
+    "description": "Drive on a rough jeep track, then walk uphill to Fairy Meadows and stay in a camp or hut. If the weather is clear, the mountain is in front of you all day. The walk is steep and needs good fitness and proper shoes."
+  },
+  {
+    "name": "Swat Valley and Kalam Retreat",
+    "duration": 5,
+    "maxGroupSize": 15,
+    "difficulty": "easy",
+    "price": 65000,
+    "summary": "Green hills, rivers and mountain villages in Swat, ending in the cool upper valley of Kalam.",
+    "description": "Drive through the Swat valley with stops at riverside villages and old markets. In Kalam we take forest walks and visit a mountain lake if the road is open. A gentle trip for families and first-time travellers."
+  },
+  {
+    "name": "Neelum Valley Riverside Escape",
+    "duration": 5,
+    "maxGroupSize": 12,
+    "difficulty": "easy",
+    "price": 80000,
+    "summary": "Riverside stays and forest walks in the Neelum Valley of Azad Kashmir.",
+    "description": "Follow the Neelum river upstream, with stops at small towns and viewpoints along the way. We sleep close to the water, walk through pine forest and spend one day in a high village. The pace is slow and the views are long."
+  },
+  {
+    "name": "Deosai Plains High Camp",
+    "duration": 4,
+    "maxGroupSize": 8,
+    "difficulty": "difficult",
+    "price": 90000,
+    "summary": "Camp on the high Deosai plateau, one of the highest plains in the world, far from any city.",
+    "description": "Drive up from Skardu to the open plateau and camp under a huge sky. Days are for walking across the grass and, in summer, the wild flowers. It is cold and high, so the nights are chilly and the trip needs good health and warm clothes."
+  }
+]
