@@ -19,6 +19,9 @@ router.get('/monthly-plan/:year', authController.protect, authController.restric
 // GET /api/v1/tours/tours-within/:distance/center/:latlng/unit/:unit  (tours that start near a place)
 // For example: /api/v1/tours/tours-within/200/center/36.3269,74.6614/unit/km
 router.get('/tours-within/:distance/center/:latlng/unit/:unit', tourController.getToursWithin);
+// GET /api/v1/tours/distances/:latlng/unit/:unit  (how far each tour starts from a place)
+// For example: /api/v1/tours/distances/36.3269,74.6614/unit/km
+router.get('/distances/:latlng/unit/:unit', tourController.getDistances);
 // GET /api/v1/tours/:id  (":id" is a blank that the visitor fills in)
 router.get('/:id', tourController.getTour);
 

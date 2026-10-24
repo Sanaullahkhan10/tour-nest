@@ -67,9 +67,18 @@ function distanceToRadians(distance, unit) {
   return distanceKm / earthRadiusKm;
 }
 
+// MongoDB gives distances in metres. Multiply by this number to get km or miles.
+function metersToUnit(unit) {
+  if (unit === 'mi') {
+    return 1 / (kmPerMile * 1000);
+  }
+  return 0.001;
+}
+
 module.exports = {
   readUnit,
   readDistance,
   readLatLng,
   distanceToRadians,
+  metersToUnit,
 };

@@ -3,7 +3,7 @@ const Tour = require('../models/tourModel');
 const Review = require('../models/reviewModel');
 const AppError = require('../utils/appError');
 const { buildPaging } = require('../utils/paging');
-const { readUnit, readDistance, readLatLng, distanceToRadians } = require('../utils/geo');
+const { readUnit, readDistance, readLatLng, distanceToRadians, metersToUnit } = require('../utils/geo');
 // The fields a visitor may filter by.
 const textFields = ['difficulty'];
 const numberFields = ['duration', 'maxGroupSize', 'price', 'ratingsAverage', 'ratingsQuantity'];
@@ -486,11 +486,87 @@ async function getToursWithin(req, res) {
   });
 }
 
+// GET /api/v1/tours/distances/:latlng/unit/:unit
+// Shows how far each tour's start place is from a place, the nearest tour first, for example
+// /api/v1/tours/distances/36.3269,74.6614/unit/km
+async function getDistances(req, res) {
+  // 1. Check the two parts of the URL, then the question mark part.
+  const placeResult = readLatLng(req.params.latlng);
+  if (placeResult.error) {
+    throw new AppError(placeResult.error, 400);
+  }
+
+  const unitResult = readUnit(req.params.unit);
+  if (unitResult.error) {
+    throw new AppError(unitResult.error, 400);
+  }
+
+  const keys = Object.keys(req.query);
+  for (let i = 0; i < keys.length; i++) {
+    if (keys[i] !== 'page' && keys[i] !== 'limit') {
+      throw new AppError(`You cannot use ${keys[i]} here`, 400);
+    }
+  }
+
+  const paging = buildPaging(req.query.page, req.query.limit);
+  if (paging.error) {
+    throw new AppError(paging.error, 400);
+  }
+
+  // 2. Ask MongoDB for the tours and their distances. $geoNear must be the FIRST step,
+  // and it needs the 2dsphere index we made on startLocation.
+  const tours = await Tour.aggregate([
+    {
+      $geoNear: {
+        // The place we measure from. MongoDB wants longitude first, the URL has latitude first.
+        near: { type: 'Point', coordinates: [placeResult.longitude, placeResult.latitude] },
+        // The new field that will hold the distance.
+        distanceField: 'distance',
+        // MongoDB works out distances in metres. We turn them into km or miles.
+        distanceMultiplier: metersToUnit(unitResult.unit),
+        // Which place field to measure to (this keeps working if we index other fields later).
+        key: 'startLocation',
+        // Measure on the round earth, not on a flat map.
+        spherical: true,
+      },
+    },
+    // Nearest first. If two tours are equally far, the order by _id is always the same.
+    { $sort: { distance: 1, _id: 1 } },
+    { $skip: paging.skip },
+    { $limit: paging.limit },
+    // Send only what we need, and round the distance to one decimal.
+    {
+      $project: {
+        name: 1,
+        distance: { $round: ['$distance', 1] },
+      },
+    },
+  ]);
+
+  // Tours that have no start place cannot be measured, so they are not in the list.
+  const total = await Tour.countDocuments({ startLocation: { $exists: true } });
+  const totalPages = Math.ceil(total / paging.limit);
+
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    page: paging.page,
+    limit: paging.limit,
+    total: total,
+    totalPages: totalPages,
+    data: {
+      unit: unitResult.unit,
+      distances: tours,
+    },
+  });
+}
+
 module.exports = {
   getAllTours,
   getTourStats,
   getMonthlyPlan,
   getToursWithin,
+  getDistances,
   getTour,
   createTour,
   updateTour,
