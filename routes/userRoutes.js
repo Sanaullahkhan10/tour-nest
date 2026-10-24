@@ -26,4 +26,13 @@ router.patch('/updateMe', authController.protect, userController.updateMe);
 // DELETE /api/v1/users/deleteMe  (the logged-in user closes their account)
 router.delete('/deleteMe', authController.protect, userController.deleteMe);
 
+// The routes below are for admins only: protect (logged in?), then restrictTo (is an admin?).
+// They must stay AFTER the fixed names above. Otherwise "/me" would be read as an id.
+
+// GET /api/v1/users  (the list of users)
+router.get('/', authController.protect, authController.restrictTo('admin'), userController.getAllUsers);
+
+// GET /api/v1/users/:id  (one user)
+router.get('/:id', authController.protect, authController.restrictTo('admin'), userController.getUser);
+
 module.exports = router;
