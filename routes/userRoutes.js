@@ -38,4 +38,7 @@ router.get('/:id', authController.protect, authController.restrictTo('admin'), u
 // PATCH /api/v1/users/:id  (an admin changes the role of a user)
 router.patch('/:id', authController.protect, authController.restrictTo('admin'), userController.updateUser);
 
+// DELETE /api/v1/users/:id  (an admin closes the account of a user)
+router.delete('/:id', authController.protect, authController.restrictTo('admin'), userController.deleteUser);
+
 module.exports = router;

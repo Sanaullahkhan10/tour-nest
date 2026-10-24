@@ -108,6 +108,18 @@ async function updateMe(req, res) {
 
 // DELETE /api/v1/users/deleteMe - the logged-in user closes their own account.
 async function deleteMe(req, res) {
+  // The only admin cannot close their account. Otherwise nobody could manage the site.
+  if (req.user.role === 'admin') {
+    const otherAdmins = await User.countDocuments({
+      role: 'admin',
+      active: { $ne: false },
+      _id: { $ne: req.user._id },
+    });
+    if (otherAdmins === 0) {
+      throw new AppError('You are the only admin. Make another user an admin before closing your account', 400);
+    }
+  }
+
   // We do not remove the user from the database. We only mark the account as not active.
   // From now on the user model hides this user from every search.
   await User.updateOne({ _id: req.user._id }, { active: false });
@@ -221,6 +233,26 @@ async function updateUser(req, res) {
   });
 }
 
+// DELETE /api/v1/users/:id - an admin closes the account of a user (for admins only).
+async function deleteUser(req, res) {
+  // An admin closes their own account with /deleteMe, which has its own safety check.
+  if (req.params.id === String(req.user._id)) {
+    throw new AppError('To close your own account, use /deleteMe', 400);
+  }
+
+  // The user model hides deleted users, so they are "not found" too.
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    throw new AppError('No user found with that id', 404);
+  }
+
+  // Like deleteMe, we only mark the account as not active. We do not remove it.
+  await User.updateOne({ _id: user._id }, { active: false });
+
+  // 204 means "done, and there is nothing to send back", so there is no body.
+  res.status(204).send();
+}
+
 module.exports = {
   getMe,
   updateMe,
@@ -228,4 +260,5 @@ module.exports = {
   getAllUsers,
   getUser,
   updateUser,
+  deleteUser,
 };
