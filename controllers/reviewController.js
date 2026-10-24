@@ -50,6 +50,14 @@ async function createReview(req, res) {
     throw error;
   }
 
+  // The tour shows its average rating and its number of reviews, so we work them out again.
+  // The review is already saved. If this fails, we do not turn a saved review into an error.
+  // We only log it. The script dev-data/recalculate-ratings.js can fix the numbers later.
+  try {
+    await Review.updateTourRatings(tour._id);
+  } catch (error) {
+    console.error('Could not update the rating of the tour:', error.message);
+  }
   // 201 means "created".
   res.status(201).json({
     status: 'success',
