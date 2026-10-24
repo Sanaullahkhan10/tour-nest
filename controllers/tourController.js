@@ -1,5 +1,6 @@
 // controllers/tourController.js - the functions that handle tour requests.
 const Tour = require('../models/tourModel');
+const Review = require('../models/reviewModel');
 const AppError = require('../utils/appError');
 const { buildPaging } = require('../utils/paging');
 // The fields a visitor may filter by.
@@ -305,6 +306,14 @@ async function deleteTour(req, res) {
     throw new AppError('No tour found with that id', 404);
   }
 
+  // The reviews of a tour that is gone have no use, so we remove them too.
+  // The tour is already deleted. If this fails, we only log it instead of turning
+  // a finished delete into an error.
+  try {
+    await Review.deleteMany({ tour: tour._id });
+  } catch (error) {
+    console.error('Could not delete the reviews of the deleted tour:', error.message);
+  }
   // 204 means "done, and there is nothing to send back", so there is no body.
   res.status(204).send();
 }
