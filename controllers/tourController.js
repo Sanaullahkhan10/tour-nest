@@ -133,6 +133,52 @@ function buildSort(sortText) {
 
   return { sort: sort };
 }
+// The fields a visitor may ask for with ?fields=name,price.
+const selectableFields = [
+  'name',
+  'duration',
+  'maxGroupSize',
+  'difficulty',
+  'price',
+  'summary',
+  'description',
+];
+
+// Turns the fields text from the URL (for example "name,price") into a list of
+// fields for the database. If something is wrong it returns an error message.
+function buildFields(fieldsText) {
+  // No fields in the URL: send everything, but hide "__v".
+  // "__v" is a counter that Mongoose adds by itself. Visitors do not need it.
+  if (fieldsText === undefined) {
+    return { select: { __v: 0 } };
+  }
+
+  // The value must be one single piece of text (not a list).
+  if (typeof fieldsText !== 'string') {
+    return { error: 'Use fields only once' };
+  }
+
+  const select = {};
+  const parts = fieldsText.split(',');
+  for (let i = 0; i < parts.length; i++) {
+    const fieldName = parts[i];
+
+    if (fieldName === '') {
+      return { error: 'fields has an empty name' };
+    }
+    if (!selectableFields.includes(fieldName)) {
+      return { error: `You cannot select ${fieldName}` };
+    }
+    if (select[fieldName] !== undefined) {
+      return { error: `${fieldName} is listed twice in fields` };
+    }
+
+    // 1 means "include this field". The "_id" always comes along by itself.
+    select[fieldName] = 1;
+  }
+
+  return { select: select };
+}
 // GET /api/v1/tours - sends back all the tours.
 async function getAllTours(req, res) {
   try {
@@ -152,7 +198,17 @@ async function getAllTours(req, res) {
       });
     }
 
-    const tours = await Tour.find(result.filter).sort(sortResult.sort);
+    const fieldsResult = buildFields(req.query.fields);
+    if (fieldsResult.error) {
+      return res.status(400).json({
+        status: 'fail',
+        message: fieldsResult.error,
+      });
+    }
+
+    const tours = await Tour.find(result.filter)
+      .sort(sortResult.sort)
+      .select(fieldsResult.select);
 
     res.status(200).json({
       status: 'success',
@@ -349,6 +405,7 @@ module.exports = {
   updateTour,
   deleteTour,
 };
+
 
 
 
