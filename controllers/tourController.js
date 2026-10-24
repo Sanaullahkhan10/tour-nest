@@ -364,9 +364,62 @@ async function getTourStats(req, res) {
   });
 }
 
+// GET /api/v1/tours/monthly-plan/:year - for one year: in which months tours start, and which tours.
+async function getMonthlyPlan(req, res) {
+  // The year comes from the URL as text. We accept only 4 digits that do not start with 0 (1000 to 9999).
+  if (!/^[1-9]\d{3}$/.test(req.params.year)) {
+    throw new AppError('year must be 4 digits, like 2027', 400);
+  }
+  const year = Number(req.params.year);
+
+  // The first moment of this year and of the next year (in UTC, like the saved dates).
+  const yearStart = new Date(Date.UTC(year, 0, 1));
+  const nextYearStart = new Date(Date.UTC(year + 1, 0, 1));
+
+  const plan = await Tour.aggregate([
+    // 1. A tour with 3 start dates becomes 3 lines, one date on each line.
+    { $unwind: '$startDates' },
+
+    // 2. Keep only the dates of this year.
+    { $match: { startDates: { $gte: yearStart, $lt: nextYearStart } } },
+
+    // 3. Group the lines by month: count the starts, and collect the tour names (each name once).
+    {
+      $group: {
+        _id: { $month: '$startDates' },
+        numTourStarts: { $sum: 1 },
+        tours: { $addToSet: '$name' },
+      },
+    },
+
+    // 4. Give _id its real name, and put the tour names in A to Z order.
+    {
+      $project: {
+        _id: 0,
+        month: '$_id',
+        numTourStarts: 1,
+        tours: { $sortArray: { input: '$tours', sortBy: 1 } },
+      },
+    },
+
+    // 5. January first.
+    { $sort: { month: 1 } },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    results: plan.length,
+    data: {
+      year: year,
+      plan: plan,
+    },
+  });
+}
+
 module.exports = {
   getAllTours,
   getTourStats,
+  getMonthlyPlan,
   getTour,
   createTour,
   updateTour,

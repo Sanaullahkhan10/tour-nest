@@ -14,6 +14,8 @@ router.get('/', tourController.getAllTours);
 // This route must come BEFORE "/:id". Express checks routes from top to bottom,
 // and "/:id" would take the word "tour-stats" as a tour id.
 router.get('/tour-stats', tourController.getTourStats);
+// GET /api/v1/tours/monthly-plan/:year  (which tours start in which month of a year; staff only)
+router.get('/monthly-plan/:year', authController.protect, authController.restrictTo('admin', 'lead-guide', 'guide'), tourController.getMonthlyPlan);
 // GET /api/v1/tours/:id  (":id" is a blank that the visitor fills in)
 router.get('/:id', tourController.getTour);
 
