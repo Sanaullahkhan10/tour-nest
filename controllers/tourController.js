@@ -321,8 +321,52 @@ async function deleteTour(req, res) {
   res.status(204).send();
 }
 
+// GET /api/v1/tours/tour-stats - numbers about the tours, one line for each difficulty.
+async function getTourStats(req, res) {
+  const stats = await Tour.aggregate([
+    // 1. Put the tours in groups by difficulty and work out the numbers of each group.
+    {
+      $group: {
+        _id: '$difficulty',
+        numTours: { $sum: 1 },
+        numRatings: { $sum: '$ratingsQuantity' },
+        // Only tours with at least one review count in the average rating. A tour without
+        // reviews has 0, and that would pull the average down unfairly. $avg skips null.
+        avgRating: { $avg: { $cond: [{ $gt: ['$ratingsQuantity', 0] }, '$ratingsAverage', null] } },
+        avgPrice: { $avg: '$price' },
+        minPrice: { $min: '$price' },
+        maxPrice: { $max: '$price' },
+      },
+    },
+    // 2. Give _id its real name, and round the averages (rating to 1 decimal, price to a whole number).
+    {
+      $project: {
+        _id: 0,
+        difficulty: '$_id',
+        numTours: 1,
+        numRatings: 1,
+        avgRating: { $round: ['$avgRating', 1] },
+        avgPrice: { $round: ['$avgPrice', 0] },
+        minPrice: 1,
+        maxPrice: 1,
+      },
+    },
+    // 3. The group with the cheapest tours comes first.
+    { $sort: { avgPrice: 1, difficulty: 1 } },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    results: stats.length,
+    data: {
+      stats: stats,
+    },
+  });
+}
+
 module.exports = {
   getAllTours,
+  getTourStats,
   getTour,
   createTour,
   updateTour,
