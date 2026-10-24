@@ -43,7 +43,15 @@ const userSchema = new mongoose.Schema({
   },
   passwordConfirm: {
     type: String,
-    required: [true, 'Please confirm your password'],
+    // It is needed for a new user and whenever the password is being changed.
+    // It is not saved in the database, so a user loaded from the database
+    // (who only changes the name, for example) must not be asked for it again.
+    required: [
+      function () {
+        return this.isNew || this.isModified('password');
+      },
+      'Please confirm your password',
+    ],
     validate: {
       // This only checks that the two passwords are the same. It works when we create
       // or save a user, not when we use findByIdAndUpdate.
@@ -52,6 +60,10 @@ const userSchema = new mongoose.Schema({
       },
       message: 'The two passwords are not the same',
     },
+  },
+  // When the password was changed the last time. A new user has no value here.
+  passwordChangedAt: {
+    type: Date,
   },
 });
 
@@ -67,6 +79,14 @@ userSchema.pre('save', async function () {
 
   // We only needed passwordConfirm to compare. It is not saved in the database.
   this.passwordConfirm = undefined;
+
+  // For an existing user this is a password change, so we remember the time.
+  // We write one second earlier than now: a new login token is made right after
+  // this save, and the token time is counted in whole seconds. Without this
+  // small step back, the new token could look older than the change.
+  if (!this.isNew) {
+    this.passwordChangedAt = new Date(Date.now() - 1000);
+  }
 });
 
 // Checks a typed password against the saved hash. We pass the hash in ourselves
@@ -75,11 +95,26 @@ userSchema.methods.correctPassword = async function (candidatePassword, userPass
   return bcrypt.compare(candidatePassword, userPassword);
 };
 
+// Tells if the password was changed AFTER a login token was made.
+// "tokenIssuedAt" is the time the token was made, in whole seconds (the "iat" inside a token).
+// If it returns true, that token is old and must not be accepted any more.
+userSchema.methods.changedPasswordAfter = function (tokenIssuedAt) {
+  // The password was never changed, so no token can be older than the change.
+  if (!this.passwordChangedAt) {
+    return false;
+  }
+
+  // Our date is in milliseconds. A token time is in seconds, so we divide by 1000.
+  const changedAtInSeconds = Math.floor(this.passwordChangedAt.getTime() / 1000);
+  return changedAtInSeconds > tokenIssuedAt;
+};
+
 // Whenever a user is turned into JSON for a reply, we remove the private fields.
 userSchema.set('toJSON', {
   transform: function (doc, ret) {
     delete ret.password;
     delete ret.passwordConfirm;
+    delete ret.passwordChangedAt;
     delete ret.__v;
     return ret;
   },
