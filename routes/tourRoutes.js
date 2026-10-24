@@ -16,4 +16,7 @@ router.get('/:id', tourController.getTour);
 // PATCH /api/v1/tours/:id  (changes some fields of one tour)
 router.patch('/:id', tourController.updateTour);
 
+// DELETE /api/v1/tours/:id  (removes one tour)
+router.delete('/:id', tourController.deleteTour);
+
 module.exports = router;

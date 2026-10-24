@@ -174,9 +174,42 @@ async function updateTour(req, res) {
   }
 }
 
+// DELETE /api/v1/tours/:id - removes one tour from the database.
+async function deleteTour(req, res) {
+  try {
+    const tour = await Tour.findByIdAndDelete(req.params.id);
+
+    // The id looked fine, but no tour has this id.
+    if (!tour) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No tour found with that id',
+      });
+    }
+
+    // 204 means "done, and there is nothing to send back", so there is no body.
+    res.status(204).send();
+  } catch (error) {
+    // The id is not shaped like a real id (like "abc").
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid tour id',
+      });
+    }
+
+    console.error('deleteTour failed:', error.message);
+    res.status(500).json({
+      status: 'error',
+      message: 'Something went wrong while deleting the tour',
+    });
+  }
+}
 module.exports = {
   getAllTours,
   getTour,
   createTour,
   updateTour,
+  deleteTour,
 };
+
