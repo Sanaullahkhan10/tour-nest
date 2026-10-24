@@ -179,6 +179,44 @@ function buildFields(fieldsText) {
 
   return { select: select };
 }
+// How many tours one page holds when the visitor does not say, and the biggest allowed.
+const defaultLimit = 10;
+const maxLimit = 50;
+// The biggest page number we accept.
+const maxPage = 100000;
+
+// Turns the page and limit from the URL (for example "2" and "3") into numbers
+// for the database. If something is wrong it returns an error message.
+function buildPaging(pageText, limitText) {
+  let page = 1;
+  let limit = defaultLimit;
+
+  if (pageText !== undefined) {
+    // The value must be one single piece of text (not a list).
+    if (typeof pageText !== 'string') {
+      return { error: 'Use page only once' };
+    }
+    page = Number(pageText);
+    if (pageText.trim() === '' || !Number.isInteger(page) || page < 1 || page > maxPage) {
+      return { error: `page must be a whole number from 1 to ${maxPage}` };
+    }
+  }
+
+  if (limitText !== undefined) {
+    if (typeof limitText !== 'string') {
+      return { error: 'Use limit only once' };
+    }
+    limit = Number(limitText);
+    if (limitText.trim() === '' || !Number.isInteger(limit) || limit < 1 || limit > maxLimit) {
+      return { error: `limit must be a whole number from 1 to ${maxLimit}` };
+    }
+  }
+
+  // How many tours to jump over before we start collecting.
+  const skip = (page - 1) * limit;
+
+  return { page: page, limit: limit, skip: skip };
+}
 // GET /api/v1/tours - sends back all the tours.
 async function getAllTours(req, res) {
   try {
@@ -206,13 +244,30 @@ async function getAllTours(req, res) {
       });
     }
 
+    const paging = buildPaging(req.query.page, req.query.limit);
+    if (paging.error) {
+      return res.status(400).json({
+        status: 'fail',
+        message: paging.error,
+      });
+    }
     const tours = await Tour.find(result.filter)
       .sort(sortResult.sort)
-      .select(fieldsResult.select);
+      .select(fieldsResult.select)
+      .skip(paging.skip)
+      .limit(paging.limit);
+
+    // How many tours match the filter in total (not only on this page).
+    const total = await Tour.countDocuments(result.filter);
+    const totalPages = Math.ceil(total / paging.limit);
 
     res.status(200).json({
       status: 'success',
       results: tours.length,
+      page: paging.page,
+      limit: paging.limit,
+      total: total,
+      totalPages: totalPages,
       data: {
         tours: tours,
       },
@@ -405,6 +460,7 @@ module.exports = {
   updateTour,
   deleteTour,
 };
+
 
 
 
