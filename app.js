@@ -1,17 +1,21 @@
-﻿// Import Express, the library that helps us build a web server.
+﻿// app.js - creates the Express app and connects URLs to the code that handles them.
 const express = require('express');
+const tourRoutes = require('./routes/tourRoutes');
 
-// Create our app. Think of it as the "brain" of the website.
 const app = express();
 
-// A route: when someone opens "/" (the home address) with a GET request,
-// we send back a small JSON message.
-app.get('/', function (request, response) {
-  response.status(200).json({
+// Lets the app read JSON sent in the body of a request (we need this for POST later).
+app.use(express.json());
+
+// The home page of the API.
+app.get('/', (req, res) => {
+  res.status(200).json({
     status: 'success',
     message: 'Welcome to Tour Nest API',
   });
 });
 
-// Share the app so other files (like server.js) can use it.
+// Every URL that starts with /api/v1/tours is handled by the tour routes.
+app.use('/api/v1/tours', tourRoutes);
+
 module.exports = app;
