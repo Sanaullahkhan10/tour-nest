@@ -61,7 +61,54 @@ async function getTour(req, res) {
   }
 }
 
+// POST /api/v1/tours - creates a new tour from the JSON the visitor sends.
+async function createTour(req, res) {
+  try {
+    // req.body is the JSON the visitor sent. The model checks it before saving.
+    // Fields that are not in the model are ignored by Mongoose.
+    const newTour = await Tour.create(req.body);
+
+    // 201 means "created".
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (error) {
+    // The data broke one or more rules of the model (too short, missing, wrong word...).
+    if (error.name === 'ValidationError') {
+      // Collect the message of every broken rule into one list.
+      const messages = [];
+      const fieldNames = Object.keys(error.errors);
+      for (let i = 0; i < fieldNames.length; i++) {
+        messages.push(error.errors[fieldNames[i]].message);
+      }
+
+      return res.status(400).json({
+        status: 'fail',
+        message: messages.join('. '),
+      });
+    }
+
+    // Error code 11000 means the database refused a duplicate (the tour name is unique).
+    if (error.code === 11000) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'A tour with this name already exists',
+      });
+    }
+
+    console.error('createTour failed:', error.message);
+    res.status(500).json({
+      status: 'error',
+      message: 'Something went wrong while creating the tour',
+    });
+  }
+}
+
 module.exports = {
   getAllTours,
   getTour,
+  createTour,
 };
