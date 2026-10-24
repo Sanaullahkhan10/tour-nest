@@ -1,6 +1,17 @@
 ﻿// controllers/tourController.js - the functions that handle tour requests.
 const Tour = require('../models/tourModel');
 
+// Turns a Mongoose ValidationError into one readable sentence.
+// It collects the message of every broken rule of the model.
+function joinValidationMessages(error) {
+  const messages = [];
+  const fieldNames = Object.keys(error.errors);
+  for (let i = 0; i < fieldNames.length; i++) {
+    messages.push(error.errors[fieldNames[i]].message);
+  }
+  return messages.join('. ');
+}
+
 // GET /api/v1/tours - sends back all the tours.
 async function getAllTours(req, res) {
   try {
@@ -78,16 +89,9 @@ async function createTour(req, res) {
   } catch (error) {
     // The data broke one or more rules of the model (too short, missing, wrong word...).
     if (error.name === 'ValidationError') {
-      // Collect the message of every broken rule into one list.
-      const messages = [];
-      const fieldNames = Object.keys(error.errors);
-      for (let i = 0; i < fieldNames.length; i++) {
-        messages.push(error.errors[fieldNames[i]].message);
-      }
-
       return res.status(400).json({
         status: 'fail',
-        message: messages.join('. '),
+        message: joinValidationMessages(error),
       });
     }
 
@@ -107,8 +111,72 @@ async function createTour(req, res) {
   }
 }
 
+// PATCH /api/v1/tours/:id - changes only the fields the visitor sends.
+async function updateTour(req, res) {
+  try {
+    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      // Send back the tour AFTER the change (the default is the old one).
+      returnDocument: 'after',
+      // Check the changed fields against the rules of the model (off by default).
+      runValidators: true,
+    });
+
+    // The id looked fine, but no tour has this id.
+    if (!tour) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No tour found with that id',
+      });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: tour,
+      },
+    });
+  } catch (error) {
+    // A CastError means a value had the wrong shape. Either the id or one of the fields.
+    if (error.name === 'CastError') {
+      if (error.path === '_id') {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'Invalid tour id',
+        });
+      }
+      return res.status(400).json({
+        status: 'fail',
+        message: `Invalid value for ${error.path}`,
+      });
+    }
+
+    // A changed field broke a rule of the model.
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        status: 'fail',
+        message: joinValidationMessages(error),
+      });
+    }
+
+    // The new name is already used by another tour.
+    if (error.code === 11000) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'A tour with this name already exists',
+      });
+    }
+
+    console.error('updateTour failed:', error.message);
+    res.status(500).json({
+      status: 'error',
+      message: 'Something went wrong while updating the tour',
+    });
+  }
+}
+
 module.exports = {
   getAllTours,
   getTour,
   createTour,
+  updateTour,
 };

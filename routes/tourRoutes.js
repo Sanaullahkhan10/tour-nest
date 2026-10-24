@@ -13,4 +13,7 @@ router.post('/', tourController.createTour);
 // GET /api/v1/tours/:id  (":id" is a blank that the visitor fills in)
 router.get('/:id', tourController.getTour);
 
+// PATCH /api/v1/tours/:id  (changes some fields of one tour)
+router.patch('/:id', tourController.updateTour);
+
 module.exports = router;
