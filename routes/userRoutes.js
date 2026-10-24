@@ -17,4 +17,7 @@ router.post('/logout', authController.logout);
 // GET /api/v1/users/me  (shows the logged-in user; "protect" runs first)
 router.get('/me', authController.protect, userController.getMe);
 
+// PATCH /api/v1/users/updateMyPassword  (the logged-in user chooses a new password)
+router.patch('/updateMyPassword', authController.protect, authController.updateMyPassword);
+
 module.exports = router;

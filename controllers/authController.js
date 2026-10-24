@@ -1,4 +1,4 @@
-// controllers/authController.js - signing up, logging in and out, and guarding routes.
+// controllers/authController.js - signing up, logging in and out, guarding routes, changing the password.
 const bcrypt = require('bcryptjs');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
@@ -7,6 +7,9 @@ const { signToken, verifyToken, cookieOptions, cookieName } = require('../utils/
 // The only fields a new visitor may fill in. Anything else they send is ignored,
 // so nobody can send "role": "admin" and make themselves an admin.
 const signupFields = ['name', 'email', 'password', 'passwordConfirm'];
+
+// The three things we need to change a password.
+const passwordFields = ['passwordCurrent', 'password', 'passwordConfirm'];
 
 // A made-up hash. When someone logs in with an email we do not know, we still check
 // their password against this one, so the answer takes the same time as for a known
@@ -128,13 +131,24 @@ async function protect(req, res, next) {
     throw error;
   }
 
+  // Every token we make has the time it was made ("iat", in whole seconds).
+  if (typeof payload.iat !== 'number') {
+    throw new AppError('Your login is not valid or has expired. Please log in again', 401);
+  }
+
   // 3. The user must still exist (the account may have been deleted after the login).
   const user = await User.findById(payload.id);
   if (!user) {
     throw new AppError('The user of this login no longer exists', 401);
   }
 
-  // 4. Remember who is asking, so the next functions can use req.user.
+  // 4. The password must not have been changed after this token was made.
+  // This way, when a user changes the password, every older login stops working.
+  if (user.changedPasswordAfter(payload.iat)) {
+    throw new AppError('Your password was changed recently. Please log in again', 401);
+  }
+
+  // 5. Remember who is asking, so the next functions can use req.user.
   req.user = user;
   next();
 }
@@ -151,10 +165,50 @@ function restrictTo(...allowedRoles) {
   };
 }
 
+// PATCH /api/v1/users/updateMyPassword - the logged-in user chooses a new password.
+// It must run after protect.
+async function updateMyPassword(req, res) {
+  const body = req.body || {};
+
+  // All three must be given, and each one must be plain text.
+  for (let i = 0; i < passwordFields.length; i++) {
+    const fieldName = passwordFields[i];
+    const value = body[fieldName];
+
+    if (value === undefined || value === '') {
+      throw new AppError('Please give passwordCurrent, password and passwordConfirm', 400);
+    }
+    if (typeof value !== 'string') {
+      throw new AppError(`${fieldName} must be text`, 400);
+    }
+  }
+
+  // protect found the user without the password, so we ask for it by name.
+  const user = await User.findById(req.user._id).select('+password');
+  if (!user) {
+    throw new AppError('The user of this login no longer exists', 401);
+  }
+
+  // The old password must be right. A login cookie alone is not enough to change it.
+  const currentIsRight = await user.correctPassword(body.passwordCurrent, user.password);
+  if (!currentIsRight) {
+    throw new AppError('Your current password is wrong', 401);
+  }
+
+  // save() runs the model rules, hashes the password and remembers the time.
+  user.password = body.password;
+  user.passwordConfirm = body.passwordConfirm;
+  await user.save();
+
+  // The old cookies stop working now, so we give this browser a new one.
+  sendToken(user, 200, res);
+}
+
 module.exports = {
   signup,
   login,
   logout,
   protect,
   restrictTo,
+  updateMyPassword,
 };
