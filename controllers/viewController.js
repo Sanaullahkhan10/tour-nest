@@ -79,7 +79,25 @@ async function getTour(req, res) {
   });
 }
 
+// GET /login - the login page. A visitor who is already logged in goes to the home page.
+function getLoginPage(req, res) {
+  if (res.locals.user) {
+    return res.redirect('/');
+  }
+  res.status(200).render('login', { title: 'Log in' });
+}
+
+// GET /signup - the signup page. A visitor who is already logged in goes to the home page.
+function getSignupPage(req, res) {
+  if (res.locals.user) {
+    return res.redirect('/');
+  }
+  res.status(200).render('signup', { title: 'Sign up' });
+}
+
 module.exports = {
   getOverview,
   getTour,
+  getLoginPage,
+  getSignupPage,
 };

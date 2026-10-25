@@ -413,3 +413,111 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* Header: who is logged in */
+.header__nav {
+  align-items: center;
+}
+
+.header__link--signup {
+  padding: 4px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+}
+
+.header__user {
+  opacity: 0.9;
+}
+
+.header__button {
+  padding: 4px 12px;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.header__button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Forms (login and signup) */
+.form-card {
+  max-width: 420px;
+  margin: 24px auto;
+  padding: 28px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.form-card__title {
+  margin: 0 0 18px;
+  font-size: 1.6rem;
+}
+
+.form-card__note {
+  margin: 18px 0 0;
+  color: var(--muted);
+}
+
+.form-card__note a {
+  font-weight: 600;
+  color: var(--green);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form__label {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.form__hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.form__input {
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.form__input:focus {
+  border-color: var(--green);
+  outline: 2px solid var(--green);
+  outline-offset: 1px;
+}
+
+.form__message {
+  min-height: 1.4em;
+  margin: 10px 0 0;
+  font-size: 0.92rem;
+  color: #a3261a;
+}
+
+.form__submit {
+  width: 100%;
+  margin-top: 4px;
+  font: inherit;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+}
+
+.form__submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

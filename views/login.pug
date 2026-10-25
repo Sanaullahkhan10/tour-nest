@@ -1,0 +1,15 @@
+//- views/login.pug - the login page. public/js/auth.js sends the form to the API.
+extends base
+
+block content
+  section.form-card
+    h1.form-card__title Log in
+    //- The form works through JavaScript. Without it, the browser would send the form to the API, never into the address bar.
+    form#login-form.form(method='post' action='/api/v1/users/login')
+      label.form__label(for='email') Email
+      input#email.form__input(type='email' name='email' required autocomplete='email')
+      label.form__label(for='password') Password
+      input#password.form__input(type='password' name='password' required autocomplete='current-password')
+      p.form__message(role='alert' aria-live='polite' data-message)
+      button.button.form__submit(type='submit') Log in
+    p.form-card__note No account yet? #[a(href='/signup') Sign up]

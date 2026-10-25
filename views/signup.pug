@@ -1,0 +1,19 @@
+//- views/signup.pug - the signup page. public/js/auth.js sends the form to the API.
+extends base
+
+block content
+  section.form-card
+    h1.form-card__title Create your account
+    form#signup-form.form(method='post' action='/api/v1/users/signup')
+      label.form__label(for='name') Name
+      input#name.form__input(type='text' name='name' required autocomplete='name')
+      label.form__label(for='email') Email
+      input#email.form__input(type='email' name='email' required autocomplete='email')
+      label.form__label(for='password') Password
+      input#password.form__input(type='password' name='password' required minlength='8' maxlength='64' autocomplete='new-password')
+      p.form__hint 8 to 64 characters.
+      label.form__label(for='passwordConfirm') Confirm password
+      input#passwordConfirm.form__input(type='password' name='passwordConfirm' required minlength='8' maxlength='64' autocomplete='new-password')
+      p.form__message(role='alert' aria-live='polite' data-message)
+      button.button.form__submit(type='submit') Sign up
+    p.form-card__note Already have an account? #[a(href='/login') Log in]

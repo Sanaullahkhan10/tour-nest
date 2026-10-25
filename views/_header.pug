@@ -3,3 +3,9 @@ header.header
   a.header__logo(href='/') Tour Nest
   nav.header__nav
     a.header__link(href='/') All tours
+    if user
+      span.header__user= user.name
+      button.header__button(type='button' data-logout) Log out
+    else
+      a.header__link(href='/login') Log in
+      a.header__link.header__link--signup(href='/signup') Sign up

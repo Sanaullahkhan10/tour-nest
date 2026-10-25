@@ -204,6 +204,40 @@ async function updateMyPassword(req, res) {
   sendToken(user, 200, res);
 }
 
+// For the pages of the website. If the visitor has a good login cookie, we put the user in
+// res.locals.user, so the header can show the name. This guard never refuses a visitor:
+// with no cookie, or a bad one, the visitor is simply not logged in.
+async function attachUser(req, res, next) {
+  res.locals.user = null;
+
+  const token = req.cookies[cookieName];
+  if (typeof token !== 'string' || token === '') {
+    return next();
+  }
+
+  let payload;
+  try {
+    payload = verifyToken(token);
+  } catch (error) {
+    // A fake or old token only means "not logged in". Any other error is our own problem.
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return next();
+    }
+    throw error;
+  }
+  if (typeof payload.iat !== 'number') {
+    return next();
+  }
+
+  // The same checks as in protect: the user must exist, and the password must not be newer than the token.
+  const user = await User.findById(payload.id);
+  if (user && !user.changedPasswordAfter(payload.iat)) {
+    req.user = user;
+    res.locals.user = user;
+  }
+  next();
+}
+
 module.exports = {
   signup,
   login,
@@ -211,4 +245,5 @@ module.exports = {
   protect,
   restrictTo,
   updateMyPassword,
+  attachUser,
 };
