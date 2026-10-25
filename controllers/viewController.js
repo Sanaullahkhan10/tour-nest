@@ -106,9 +106,22 @@ function getSignupPage(req, res) {
   res.status(200).render('signup', { title: 'Sign up' });
 }
 
+// GET /me - the account page of the logged-in visitor.
+function getAccountPage(req, res) {
+  // Only a logged-in visitor has an account page. Anybody else goes to the login page.
+  if (!res.locals.user) {
+    return res.redirect('/login');
+  }
+
+  // The page shows private data, so the browser and proxies must not keep a copy of it.
+  res.set('Cache-Control', 'no-store');
+  res.status(200).render('account', { title: 'My account' });
+}
+
 module.exports = {
   getOverview,
   getTour,
   getLoginPage,
   getSignupPage,
+  getAccountPage,
 };

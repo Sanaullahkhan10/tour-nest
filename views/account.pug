@@ -1,0 +1,37 @@
+//- views/account.pug - the page of the logged-in visitor. public/js/account.js makes the forms work.
+extends base
+
+block content
+  .account
+    h1.account__title My account
+    p.account__role Signed in as #{user.role}
+
+    section.form-card
+      h2.form-card__title Your details
+      form#details-form.form(method='post' action='/api/v1/users/updateMe')
+        label.form__label(for='name') Name
+        input#name.form__input(type='text' name='name' required value=user.name autocomplete='name')
+        label.form__label(for='email') Email
+        input#email.form__input(type='email' name='email' required value=user.email autocomplete='email')
+        p.form__message(role='alert' aria-live='polite' data-message)
+        button.button.form__submit(type='submit') Save changes
+
+    section.form-card
+      h2.form-card__title Change your password
+      form#password-form.form(method='post' action='/api/v1/users/updateMyPassword')
+        label.form__label(for='passwordCurrent') Current password
+        input#passwordCurrent.form__input(type='password' name='passwordCurrent' required autocomplete='current-password')
+        label.form__label(for='password') New password
+        input#password.form__input(type='password' name='password' required autocomplete='new-password')
+        label.form__label(for='passwordConfirm') Repeat the new password
+        input#passwordConfirm.form__input(type='password' name='passwordConfirm' required autocomplete='new-password')
+        p.form__message(role='alert' aria-live='polite' data-message)
+        button.button.form__submit(type='submit') Change password
+
+    section#close-account.form-card
+      h2.form-card__title Close your account
+      p.form-card__note Your account will be closed and you will be logged out. This cannot be undone.
+      p.form__message(role='alert' aria-live='polite' data-message)
+      button.button.button--danger.form__submit(type='button') Close my account
+
+  script(src='/js/account.js' defer)

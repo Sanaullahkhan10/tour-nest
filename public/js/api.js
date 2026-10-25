@@ -25,10 +25,11 @@ async function sendJson(url, data, method) {
   return { ok: reply.ok, body: body };
 }
 
-// Shows a text under a form (an error, or nothing).
-function showMessage(form, text) {
+// Shows a text under a form (an error, or nothing). Give true as the third value for good news (it turns green).
+function showMessage(form, text, isGood) {
   const place = form.querySelector('[data-message]');
   if (place) {
     place.textContent = text;
+    place.classList.toggle('form__message--good', Boolean(isGood));
   }
 }

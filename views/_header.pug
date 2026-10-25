@@ -4,7 +4,7 @@ header.header
   nav.header__nav
     a.header__link(href='/') All tours
     if user
-      span.header__user= user.name
+      a.header__link.header__user(href='/me' data-user-name)= user.name
       button.header__button(type='button' data-logout) Log out
     else
       a.header__link(href='/login') Log in

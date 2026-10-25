@@ -19,4 +19,7 @@ router.get('/login', authController.attachUser, viewController.getLoginPage);
 // GET /signup  (the signup page)
 router.get('/signup', authController.attachUser, viewController.getSignupPage);
 
+// GET /me  (the account page of the logged-in visitor)
+router.get('/me', authController.attachUser, viewController.getAccountPage);
+
 module.exports = router;

@@ -554,3 +554,29 @@ textarea.form__input {
 .button--danger:hover {
   background: #7f1d14;
 }
+
+/* My account page: the cards one under the other */
+.account {
+  display: grid;
+  gap: 24px;
+  justify-items: center;
+}
+
+.account .form-card {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.account__title {
+  margin: 24px 0 0;
+}
+
+.account__role {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* Good news under a form (for example "Your details were saved.") */
+.form__message--good {
+  color: var(--green);
+}
