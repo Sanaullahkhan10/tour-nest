@@ -1,0 +1,37 @@
+# render.yaml - tells Render how to run Tour Nest (a "Blueprint").
+# It holds NO secrets. "sync: false" means: Render asks you for the value in its dashboard.
+services:
+  - type: web
+    name: tour-nest
+    runtime: node
+    plan: free
+    # The closest Render region to Pakistan (our database is in Mumbai).
+    region: singapore
+    branch: main
+    autoDeploy: true
+    buildCommand: npm ci
+    startCommand: npm start
+    # Render calls this URL to see if the app is alive. It says 503 when the database is not connected.
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: JWT_EXPIRES_DAYS
+        value: "7"
+      # How many proxies sit in front of the app. We measure this after the first deploy.
+      - key: TRUST_PROXY_HOPS
+        sync: false
+      # The database (the same settings as in your own .env file).
+      - key: DATABASE_USER
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: DATABASE_HOST
+        sync: false
+      - key: DATABASE_NAME
+        sync: false
+      # The secret that signs logins. It must have at least 64 characters.
+      - key: JWT_SECRET
+        sync: false
