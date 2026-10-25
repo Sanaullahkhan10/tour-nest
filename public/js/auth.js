@@ -1,36 +1,7 @@
 // public/js/auth.js - makes the login form, the signup form and the logout button work.
 // It talks to our own API with fetch. The browser keeps the login cookie by itself.
 
-// Sends JSON to the API with POST and gives back { ok, body }.
-// "data" is optional: the logout button sends nothing.
-async function sendJson(url, data) {
-  const settings = {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-  };
-  if (data) {
-    settings.body = JSON.stringify(data);
-  }
-
-  const reply = await fetch(url, settings);
-
-  // An answer that is not JSON gives null.
-  let body = null;
-  try {
-    body = await reply.json();
-  } catch (error) {
-    body = null;
-  }
-  return { ok: reply.ok, body: body };
-}
-
-// Shows a text under the form (an error, or nothing).
-function showMessage(form, text) {
-  const place = form.querySelector('[data-message]');
-  if (place) {
-    place.textContent = text;
-  }
-}
+// sendJson and showMessage (the helpers every script shares) are in api.js, which is loaded before this file.
 
 // Reads the fields with these names from the form into one object.
 function readFields(form, names) {

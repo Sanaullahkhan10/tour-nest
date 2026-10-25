@@ -35,6 +35,26 @@ block content
             p.review__text= item.review
             p.review__date= formatDate(item.createdAt)
 
+      h2#write-review= myReview ? 'Your review' : 'Write a review'
+      if !user
+        p.empty #[a(href='/login') Log in] to write a review.
+      else if user.role !== 'user'
+        p.empty Only visitors with a normal user account can write reviews.
+      else
+        form#review-form.form.review-form(method='post' data-mode=(myReview ? 'update' : 'create') data-tour=tourId data-review=(myReview ? myReview._id : false))
+          label.form__label(for='rating') Rating
+          select#rating.form__input(name='rating' required)
+            option(value='' disabled selected=(!myReview)) Choose a rating
+            each n in [5, 4, 3, 2, 1]
+              option(value=n selected=(myReview && myReview.rating === n)) #{n} out of 5
+          label.form__label(for='review') Your review
+          textarea#review.form__input(name='review' rows='5' maxlength='1000' required)= myReview ? myReview.review : ''
+          p.form__message(role='alert' aria-live='polite' data-message)
+          .form__actions
+            button.button.form__submit(type='submit')= myReview ? 'Save changes' : 'Post review'
+            if myReview
+              button#review-delete.button.button--danger.form__submit(type='button') Delete my review
+
     aside.detail__side
       .box
         p.box__price= formatPrice(tour.price)
@@ -62,3 +82,5 @@ block content
               li= formatDate(date)
         else
           p.box__note No upcoming dates yet.
+
+  script(src='/js/reviews.js' defer)

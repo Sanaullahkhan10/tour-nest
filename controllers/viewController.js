@@ -56,6 +56,15 @@ async function getTour(req, res) {
     });
   }
 
+  // The review of the visitor who is logged in (if there is one), so the page can offer "change" and "delete".
+  let myReview = null;
+  if (res.locals.user) {
+    const mine = await Review.findOne({ tour: tour._id, user: res.locals.user._id }).lean();
+    if (mine) {
+      myReview = { _id: String(mine._id), review: mine.review, rating: mine.rating };
+    }
+  }
+
   // The places of the tour in the order of its days (we copy the list before sorting it).
   const stops = (tour.locations || []).slice();
   stops.sort((a, b) => a.day - b.day);
@@ -76,6 +85,8 @@ async function getTour(req, res) {
     stops: stops,
     reviews: reviews,
     startDates: startDates,
+    myReview: myReview,
+    tourId: String(tour._id),
   });
 }
 

@@ -521,3 +521,36 @@ a {
   opacity: 0.6;
   cursor: wait;
 }
+
+/* The review form on the page of a tour */
+.review-form {
+  padding: 18px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+textarea.form__input {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.form__actions .form__submit {
+  width: auto;
+  margin-top: 0;
+}
+
+.button--danger {
+  background: #a3261a;
+}
+
+.button--danger:hover {
+  background: #7f1d14;
+}
