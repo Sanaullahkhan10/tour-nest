@@ -24,8 +24,8 @@ describe('helmet headers', () => {
     await site.stop();
   });
 
-  it('the home page has the safe headers and no x-powered-by', async () => {
-    const reply = await send(site.baseUrl, '/', 'GET');
+  it('a page outside /api has the safe headers and no x-powered-by', async () => {
+    const reply = await send(site.baseUrl, '/css/style.css', 'GET');
     assert.equal(reply.status, 200);
     assertSafeHeaders(reply);
   });

@@ -1,18 +1,28 @@
 // app.js - creates the Express app and connects URLs to the code that handles them.
 const express = require('express');
+const path = require('path');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const tourRoutes = require('./routes/tourRoutes');
 const userRoutes = require('./routes/userRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const viewRoutes = require('./routes/viewRoutes');
 const AppError = require('./utils/appError');
 const { apiLimiter, authLimiter } = require('./utils/rateLimit');
 const { rejectOperatorKeys } = require('./utils/checkBody');
 const { readTrustProxyHops } = require('./utils/settings');
 const { globalErrorHandler } = require('./controllers/errorController');
+const formatHelpers = require('./utils/format');
 
 const app = express();
+
+// The pages of the website are written with Pug. The templates are in the "views" folder.
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
+// The small helpers for prices and dates can be used in every template.
+Object.assign(app.locals, formatHelpers);
 
 // Behind a proxy (a hosting service), the real IP address of a visitor is in the X-Forwarded-For header.
 // TRUST_PROXY_HOPS tells Express how many proxies to believe. 0 (the default) means we trust none.
@@ -24,6 +34,10 @@ if (proxyHops > 0) {
 // Adds safe HTTP headers to every answer (for example: do not guess file types,
 // do not allow our pages inside other sites' frames). It goes first, so every answer gets them.
 app.use(helmet());
+
+// The files in the "public" folder (the CSS, later the images) are sent as they are.
+// This comes right after helmet, so these files get the safe headers too.
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Read the URL query the simple way: "price[lte]=80000" stays one plain name.
 // We read those names ourselves in the tour controller, so only allowed filters work.
@@ -54,13 +68,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// The home page of the API.
-app.get('/', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'Welcome to Tour Nest API',
-  });
-});
+// The pages of the website (the home page with all the tours, and later more).
+app.use('/', viewRoutes);
 
 // Every URL that starts with /api/v1/tours is handled by the tour routes.
 app.use('/api/v1/tours', tourRoutes);

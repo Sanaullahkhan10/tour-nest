@@ -57,7 +57,7 @@ describe('rate limits', () => {
   });
 
   it('pages outside /api are not limited', async () => {
-    const reply = await send(site.baseUrl, '/', 'GET');
+    const reply = await send(site.baseUrl, '/css/style.css', 'GET');
     assert.equal(reply.status, 200);
   });
 });

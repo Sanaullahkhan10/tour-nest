@@ -1,0 +1,32 @@
+//- views/overview.pug - the home page: a card for every tour.
+extends base
+
+block content
+  section.intro
+    h1.intro__title Explore the mountains and valleys of Pakistan
+    p.intro__text Hand-picked trips to Hunza, Skardu, Fairy Meadows and more.
+
+  if tours.length === 0
+    p.empty There are no tours yet. Please come back soon.
+  else
+    .card-grid
+      each tour in tours
+        article.card
+          .card__cover(class='card__cover--' + tour.difficulty)
+            span.card__badge= tour.difficulty
+          .card__body
+            h2.card__title= tour.name
+            p.card__summary= tour.summary
+            ul.card__facts
+              li #{tour.duration} days
+              li Up to #{tour.maxGroupSize} people
+              - var next = nextStart(tour.startDates)
+              if next
+                li Next start: #{formatMonthYear(next)}
+              if tour.ratingsQuantity > 0
+                li #{tour.ratingsAverage} / 5 (#{tour.ratingsQuantity} reviews)
+              else
+                li No reviews yet
+          .card__footer
+            span.card__price= formatPrice(tour.price)
+            span.card__per per person

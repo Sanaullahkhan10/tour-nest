@@ -1,0 +1,186 @@
+/* public/css/style.css - the look of the whole website. */
+:root {
+  --green: #1f6f54;
+  --green-dark: #154d3a;
+  --ink: #1d2a26;
+  --muted: #5d6b66;
+  --paper: #f6f8f7;
+  --white: #ffffff;
+  --line: #dde5e1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+}
+
+/* Header and footer */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: var(--green-dark);
+  color: var(--white);
+}
+
+.header__logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.header__nav {
+  display: flex;
+  gap: 18px;
+}
+
+.header__link {
+  text-decoration: none;
+  opacity: 0.9;
+}
+
+.header__link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.footer {
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+}
+
+/* Page area */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 20px 56px;
+}
+
+.intro {
+  margin-bottom: 28px;
+}
+
+.intro__title {
+  margin: 0 0 8px;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  line-height: 1.2;
+}
+
+.intro__text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--muted);
+  background: var(--white);
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+}
+
+/* Tour cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 22px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.card__cover {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  height: 120px;
+  padding: 12px;
+  background: linear-gradient(135deg, #2f8f6b, #8fd0b0);
+}
+
+.card__cover--medium {
+  background: linear-gradient(135deg, #b9791f, #f0c776);
+}
+
+.card__cover--difficult {
+  background: linear-gradient(135deg, #9a3b2e, #e59a86);
+}
+
+.card__badge {
+  padding: 3px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: var(--white);
+  border-radius: 999px;
+}
+
+.card__body {
+  flex: 1;
+  padding: 16px 18px 8px;
+}
+
+.card__title {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.card__summary {
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+
+.card__facts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.92rem;
+}
+
+.card__facts li {
+  padding: 3px 0;
+}
+
+.card__footer {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 12px 18px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.card__price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.card__per {
+  color: var(--muted);
+  font-size: 0.9rem;
+}

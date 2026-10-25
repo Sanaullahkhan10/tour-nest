@@ -1,0 +1,14 @@
+//- views/base.pug - the frame every page shares: head, header, footer.
+//- A page "extends" this file and fills the "content" block.
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+    title #{title} | Tour Nest
+    link(rel='stylesheet' href='/css/style.css')
+  body
+    include _header
+    main.main
+      block content
+    include _footer
