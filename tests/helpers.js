@@ -19,9 +19,17 @@ function startApp() {
 }
 
 // Sends one request. "rawBody" is the exact text to send as JSON (leave it out for no body).
+// "extraHeaders" is an optional object of more headers, like { 'X-Forwarded-For': '1.2.3.4' }.
 // Gives back the status, the headers, and the answer read as JSON (null if it is not JSON).
-async function send(baseUrl, path, method, rawBody) {
+async function send(baseUrl, path, method, rawBody, extraHeaders) {
   const settings = { method: method, headers: {} };
+
+  if (extraHeaders) {
+    const names = Object.keys(extraHeaders);
+    for (let i = 0; i < names.length; i++) {
+      settings.headers[names[i]] = extraHeaders[names[i]];
+    }
+  }
   if (rawBody !== undefined) {
     settings.headers['Content-Type'] = 'application/json';
     settings.body = rawBody;

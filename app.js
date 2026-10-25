@@ -1,5 +1,6 @@
 // app.js - creates the Express app and connects URLs to the code that handles them.
 const express = require('express');
+const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const tourRoutes = require('./routes/tourRoutes');
@@ -8,9 +9,17 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const AppError = require('./utils/appError');
 const { apiLimiter, authLimiter } = require('./utils/rateLimit');
 const { rejectOperatorKeys } = require('./utils/checkBody');
+const { readTrustProxyHops } = require('./utils/settings');
 const { globalErrorHandler } = require('./controllers/errorController');
 
 const app = express();
+
+// Behind a proxy (a hosting service), the real IP address of a visitor is in the X-Forwarded-For header.
+// TRUST_PROXY_HOPS tells Express how many proxies to believe. 0 (the default) means we trust none.
+const proxyHops = readTrustProxyHops(process.env.TRUST_PROXY_HOPS);
+if (proxyHops > 0) {
+  app.set('trust proxy', proxyHops);
+}
 
 // Adds safe HTTP headers to every answer (for example: do not guess file types,
 // do not allow our pages inside other sites' frames). It goes first, so every answer gets them.
@@ -34,6 +43,16 @@ app.use(cookieParser());
 
 // Refuses bodies with field names like "$gt" (a MongoDB operator) or with dots.
 app.use(rejectOperatorKeys);
+
+// A check for the hosting service: is the app alive, and is the database connected?
+// It is outside /api, so these checks never count against the rate limit.
+app.get('/health', (req, res) => {
+  const connected = mongoose.connection.readyState === 1;
+  res.status(connected ? 200 : 503).json({
+    status: connected ? 'ok' : 'unavailable',
+    database: connected ? 'connected' : 'not connected',
+  });
+});
 
 // The home page of the API.
 app.get('/', (req, res) => {
