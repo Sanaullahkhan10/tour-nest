@@ -54,6 +54,14 @@ app.get('/health', (req, res) => {
   });
 });
 
+// TEMPORARY: shows how many proxies sit in front of the app (we measure it once after the first
+// deploy, then remove this route).
+app.get('/ip', (req, res) => {
+  res.status(200).json({
+    ip: req.ip,
+    forwardedFor: req.headers['x-forwarded-for'] || null,
+  });
+});
 // The home page of the API.
 app.get('/', (req, res) => {
   res.status(200).json({
