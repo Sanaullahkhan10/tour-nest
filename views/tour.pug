@@ -1,6 +1,10 @@
 //- views/tour.pug - the page of one tour: story, route, start dates and reviews.
 extends base
 
+block head
+  if mapPoints && mapPoints.length > 0
+    link(rel='stylesheet' href='/vendor/leaflet/leaflet.css')
+
 block content
   a.back-link(href='/') &larr; All tours
 
@@ -22,6 +26,11 @@ block content
             li.stops__item
               span.stops__day Day #{stop.day}
               span.stops__text= stop.description
+
+      if mapPoints && mapPoints.length > 0
+        h2 The map
+        #tour-map.map(data-points=JSON.stringify(mapPoints) role='region' aria-label='Map of the tour route')
+          noscript The map needs JavaScript.
 
       h2 Reviews
       if reviews.length === 0
@@ -84,3 +93,6 @@ block content
           p.box__note No upcoming dates yet.
 
   script(src='/js/reviews.js' defer)
+  if mapPoints && mapPoints.length > 0
+    script(src='/vendor/leaflet/leaflet.js' defer)
+    script(src='/js/map.js' defer)

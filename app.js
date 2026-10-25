@@ -33,11 +33,27 @@ if (proxyHops > 0) {
 
 // Adds safe HTTP headers to every answer (for example: do not guess file types,
 // do not allow our pages inside other sites' frames). It goes first, so every answer gets them.
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        // The pictures of the map come from the OpenStreetMap server.
+        'img-src': ["'self'", 'data:', 'https://tile.openstreetmap.org'],
+      },
+    },
+    // OpenStreetMap blocks a website whose visitors send no referrer, so we send the
+    // address of our own site (and nothing more) to other sites. Helmet's default is "no-referrer".
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  })
+);
 
 // The files in the "public" folder (the CSS, later the images) are sent as they are.
 // This comes right after helmet, so these files get the safe headers too.
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Leaflet (the map library) is sent from our own server, so the pages need no scripts from other sites.
+app.use('/vendor/leaflet', express.static(path.join(__dirname, 'node_modules', 'leaflet', 'dist')));
 
 // Read the URL query the simple way: "price[lte]=80000" stays one plain name.
 // We read those names ourselves in the tour controller, so only allowed filters work.

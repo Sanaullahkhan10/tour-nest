@@ -8,7 +8,7 @@ const { startApp, send } = require('./helpers');
 function assertSafeHeaders(reply) {
   assert.equal(reply.headers.get('x-content-type-options'), 'nosniff');
   assert.equal(reply.headers.get('x-frame-options'), 'SAMEORIGIN');
-  assert.equal(reply.headers.get('referrer-policy'), 'no-referrer');
+  assert.equal(reply.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
   assert.ok(reply.headers.get('strict-transport-security'), 'strict-transport-security is missing');
   assert.ok(reply.headers.get('content-security-policy').includes("default-src 'self'"), 'content-security-policy is missing');
   assert.equal(reply.headers.get('x-powered-by'), null, 'x-powered-by is still sent');

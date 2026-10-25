@@ -2,6 +2,7 @@
 const Tour = require('../models/tourModel');
 const Review = require('../models/reviewModel');
 const AppError = require('../utils/appError');
+const { buildMapPoints } = require('../utils/mapPoints');
 
 // The id of a tour is 24 characters: the digits 0 to 9 and the letters a to f.
 const idPattern = /^[0-9a-fA-F]{24}$/;
@@ -87,6 +88,7 @@ async function getTour(req, res) {
     startDates: startDates,
     myReview: myReview,
     tourId: String(tour._id),
+    mapPoints: buildMapPoints(tour),
   });
 }
 
