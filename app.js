@@ -1,6 +1,7 @@
 // app.js - creates the Express app and connects URLs to the code that handles them.
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
 const tourRoutes = require('./routes/tourRoutes');
 const userRoutes = require('./routes/userRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
@@ -8,6 +9,10 @@ const AppError = require('./utils/appError');
 const { globalErrorHandler } = require('./controllers/errorController');
 
 const app = express();
+
+// Adds safe HTTP headers to every answer (for example: do not guess file types,
+// do not allow our pages inside other sites' frames). It goes first, so every answer gets them.
+app.use(helmet());
 
 // Read the URL query the simple way: "price[lte]=80000" stays one plain name.
 // We read those names ourselves in the tour controller, so only allowed filters work.
