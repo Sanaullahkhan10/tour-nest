@@ -20,9 +20,9 @@ services:
         value: "22"
       - key: JWT_EXPIRES_DAYS
         value: "7"
-      # How many proxies sit in front of the app. We measure this after the first deploy.
+      # How many proxies sit in front of the app on Render. We measured it after the first deploy: 3.
       - key: TRUST_PROXY_HOPS
-        sync: false
+        value: "3"
       # The database (the same settings as in your own .env file).
       - key: DATABASE_USER
         sync: false
