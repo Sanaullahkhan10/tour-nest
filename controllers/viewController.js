@@ -3,6 +3,7 @@ const Tour = require('../models/tourModel');
 const Review = require('../models/reviewModel');
 const AppError = require('../utils/appError');
 const { buildMapPoints } = require('../utils/mapPoints');
+const { looksLikeToken } = require('../utils/resetToken');
 
 // The id of a tour is 24 characters: the digits 0 to 9 and the letters a to f.
 const idPattern = /^[0-9a-fA-F]{24}$/;
@@ -120,10 +121,32 @@ function getAccountPage(req, res) {
   res.status(200).render('account', { title: 'My account' });
 }
 
+// GET /forgot-password - asks for the email. A visitor who is already logged in goes to the home page.
+function getForgotPasswordPage(req, res) {
+  if (res.locals.user) {
+    return res.redirect('/');
+  }
+  res.status(200).render('forgot-password', { title: 'Forgot your password' });
+}
+
+// GET /reset-password/:token - the page where the visitor chooses a new password.
+// Whether the link is still good is checked when the form is sent. Here we only check its shape.
+function getResetPasswordPage(req, res) {
+  if (!looksLikeToken(req.params.token)) {
+    throw new AppError('This reset link is not valid or has expired. Please ask for a new one', 400);
+  }
+
+  // The address holds a secret, so the browser and proxies must not keep a copy of the page.
+  res.set('Cache-Control', 'no-store');
+  res.status(200).render('reset-password', { title: 'Choose a new password', token: req.params.token });
+}
+
 module.exports = {
   getOverview,
   getTour,
   getLoginPage,
   getSignupPage,
   getAccountPage,
+  getForgotPasswordPage,
+  getResetPasswordPage,
 };

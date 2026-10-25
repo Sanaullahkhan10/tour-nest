@@ -22,4 +22,10 @@ router.get('/signup', authController.attachUser, viewController.getSignupPage);
 // GET /me  (the account page of the logged-in visitor)
 router.get('/me', authController.attachUser, viewController.getAccountPage);
 
+// GET /forgot-password  (asks for the email, to send the reset link)
+router.get('/forgot-password', authController.attachUser, viewController.getForgotPasswordPage);
+
+// GET /reset-password/:token  (the page of the link in the email)
+router.get('/reset-password/:token', authController.attachUser, viewController.getResetPasswordPage);
+
 module.exports = router;

@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const { signToken, verifyToken, cookieOptions, cookieName } = require('../utils/token');
+const emailService = require('../utils/email');
+const { makeResetToken, hashToken, looksLikeToken, lastLinkIsTooNew } = require('../utils/resetToken');
 
 // The only fields a new visitor may fill in. Anything else they send is ignored,
 // so nobody can send "role": "admin" and make themselves an admin.
@@ -50,6 +52,11 @@ async function signup(req, res) {
   // The model checks every rule and hashes the password before saving.
   // If a rule is broken, Mongoose throws and the global error handler answers 400.
   const newUser = await User.create(userData);
+
+  // A welcome email. It is sent in the background and never stops the signup.
+  emailService.sendInBackground('welcome email', () => {
+    return emailService.sendWelcomeEmail(newUser, emailService.readSiteUrl() + '/');
+  });
 
   // 201 means "created".
   sendToken(newUser, 201, res);
@@ -238,6 +245,84 @@ async function attachUser(req, res, next) {
   next();
 }
 
+// The answer to "forgot password". It is the same for every email, so nobody can use this
+// route to find out which emails have an account.
+const forgotPasswordAnswer = 'If that email has an account, we have sent a link to choose a new password. The link works for 10 minutes.';
+
+const badResetLinkMessage = 'This reset link is not valid or has expired. Please ask for a new one';
+
+// POST /api/v1/users/forgotPassword - emails a link to choose a new password.
+async function forgotPassword(req, res) {
+  const body = req.body || {};
+  const email = body.email;
+
+  if (email === undefined || email === '') {
+    throw new AppError('Please give your email', 400);
+  }
+  if (typeof email !== 'string') {
+    throw new AppError('email must be text', 400);
+  }
+
+  // The model saves emails in small letters without spaces, so we search the same way.
+  const user = await User.findOne({ email: email.trim().toLowerCase() }).select('+passwordResetExpires');
+
+  // A visitor who asked a moment ago gets no second email (see lastLinkIsTooNew).
+  if (user && !lastLinkIsTooNew(user.passwordResetExpires)) {
+    const reset = makeResetToken();
+
+    // We save only the hash. updateOne changes just these two fields and nothing else.
+    await User.updateOne({ _id: user._id }, { passwordResetToken: reset.hash, passwordResetExpires: reset.expires });
+
+    // The visitor does not wait for the email, so the answer takes the same time for every email.
+    emailService.sendInBackground('password reset email', () => {
+      return emailService.sendPasswordResetEmail(user, emailService.readSiteUrl() + '/reset-password/' + reset.token);
+    });
+  }
+
+  res.status(200).json({
+    status: 'success',
+    message: forgotPasswordAnswer,
+  });
+}
+
+// PATCH /api/v1/users/resetPassword/:token - chooses a new password with the link from the email.
+async function resetPassword(req, res) {
+  const token = req.params.token;
+  if (!looksLikeToken(token)) {
+    throw new AppError(badResetLinkMessage, 400);
+  }
+
+  const body = req.body || {};
+  const fieldNames = ['password', 'passwordConfirm'];
+  for (let i = 0; i < fieldNames.length; i++) {
+    const value = body[fieldNames[i]];
+    if (value === undefined || value === '') {
+      throw new AppError('Please give password and passwordConfirm', 400);
+    }
+    if (typeof value !== 'string') {
+      throw new AppError(fieldNames[i] + ' must be text', 400);
+    }
+  }
+
+  // We look for the HASH of the token, and the link must not be over.
+  const user = await User.findOne({ passwordResetToken: hashToken(token), passwordResetExpires: { $gt: new Date() } });
+  if (!user) {
+    throw new AppError(badResetLinkMessage, 400);
+  }
+
+  // save() runs the model rules, hashes the password and remembers the time, so every older login stops working.
+  // Removing the two fields means the link works only once. If a rule is broken (a short password),
+  // save() throws before anything is written, and the link still works for another try.
+  user.password = body.password;
+  user.passwordConfirm = body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  // The visitor proved the email by opening the link, so we log them in.
+  sendToken(user, 200, res);
+}
+
 module.exports = {
   signup,
   login,
@@ -245,5 +330,7 @@ module.exports = {
   protect,
   restrictTo,
   updateMyPassword,
+  forgotPassword,
+  resetPassword,
   attachUser,
 };

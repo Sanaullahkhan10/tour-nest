@@ -20,6 +20,11 @@ services:
         value: "22"
       - key: JWT_EXPIRES_DAYS
         value: "7"
+      # The address of the website, for the links in emails (it is not a secret).
+      # The email settings (EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD, EMAIL_FROM) are added
+      # by hand in the Render dashboard under Environment, because they hold a password.
+      - key: SITE_URL
+        value: https://tour-nest.onrender.com
       # How many proxies sit in front of the app on Render. We measured it after the first deploy: 3.
       - key: TRUST_PROXY_HOPS
         value: "3"

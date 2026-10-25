@@ -17,6 +17,7 @@ describe('the scripts of the website', () => {
     assert.ok(files.includes('auth.js'));
     assert.ok(files.includes('reviews.js'));
     assert.ok(files.includes('account.js'));
+    assert.ok(files.includes('recover.js'));
   });
 
   for (let i = 0; i < files.length; i++) {

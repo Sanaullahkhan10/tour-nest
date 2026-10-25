@@ -14,6 +14,12 @@ router.post('/login', authController.login);
 // POST /api/v1/users/logout  (removes the login cookie)
 router.post('/logout', authController.logout);
 
+// POST /api/v1/users/forgotPassword  (emails a link to choose a new password)
+router.post('/forgotPassword', authController.forgotPassword);
+
+// PATCH /api/v1/users/resetPassword/:token  (chooses a new password with the link from the email)
+router.patch('/resetPassword/:token', authController.resetPassword);
+
 // GET /api/v1/users/me  (shows the logged-in user; "protect" runs first)
 router.get('/me', authController.protect, userController.getMe);
 

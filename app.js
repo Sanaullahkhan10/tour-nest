@@ -64,6 +64,8 @@ app.set('query parser', 'simple');
 app.use('/api', apiLimiter);
 app.use('/api/v1/users/login', authLimiter);
 app.use('/api/v1/users/signup', authLimiter);
+app.use('/api/v1/users/forgotPassword', authLimiter);
+app.use('/api/v1/users/resetPassword', authLimiter);
 
 // Lets the app read JSON sent in the body of a request. A body bigger than 10 kb is refused.
 app.use(express.json({ limit: '10kb' }));

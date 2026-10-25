@@ -73,6 +73,17 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: {
     type: Date,
   },
+
+  // The "forgot password" link. We save only the hash of the secret (never the secret itself)
+  // and the time when the link stops working. Normal searches never return these two.
+  passwordResetToken: {
+    type: String,
+    select: false,
+  },
+  passwordResetExpires: {
+    type: Date,
+    select: false,
+  },
 });
 
 // Runs just before a user is saved: hides the password behind a hash.
@@ -132,6 +143,8 @@ userSchema.set('toJSON', {
     delete ret.passwordConfirm;
     delete ret.passwordChangedAt;
     delete ret.active;
+    delete ret.passwordResetToken;
+    delete ret.passwordResetExpires;
     delete ret.__v;
     return ret;
   },
