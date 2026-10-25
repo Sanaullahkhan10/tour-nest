@@ -7,4 +7,7 @@ const router = express.Router();
 // GET /  (the home page, with all the tours)
 router.get('/', viewController.getOverview);
 
+// GET /tours/:id  (the page of one tour)
+router.get('/tours/:id', viewController.getTour);
+
 module.exports = router;

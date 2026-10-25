@@ -1,0 +1,64 @@
+//- views/tour.pug - the page of one tour: story, route, start dates and reviews.
+extends base
+
+block content
+  a.back-link(href='/') &larr; All tours
+
+  section.hero(class='hero--' + tour.difficulty)
+    span.hero__badge= tour.difficulty
+    h1.hero__title= tour.name
+    p.hero__summary= tour.summary
+
+  .detail
+    .detail__main
+      if tour.description
+        h2 About this tour
+        p.detail__text= tour.description
+
+      if stops.length > 0
+        h2 The route, day by day
+        ol.stops
+          each stop in stops
+            li.stops__item
+              span.stops__day Day #{stop.day}
+              span.stops__text= stop.description
+
+      h2 Reviews
+      if reviews.length === 0
+        p.empty No reviews yet.
+      else
+        each item in reviews
+          article.review
+            .review__top
+              span.review__name= item.userName
+              span.review__stars(aria-label=item.rating + ' out of 5')= stars(item.rating)
+            p.review__text= item.review
+            p.review__date= formatDate(item.createdAt)
+
+    aside.detail__side
+      .box
+        p.box__price= formatPrice(tour.price)
+        p.box__per per person
+        dl.facts
+          dt Duration
+          dd #{tour.duration} days
+          dt Group size
+          dd Up to #{tour.maxGroupSize} people
+          dt Difficulty
+          dd.facts__capital= tour.difficulty
+          dt Rating
+          dd
+            if tour.ratingsQuantity > 0
+              | #{tour.ratingsAverage} / 5 (#{tour.ratingsQuantity} reviews)
+            else
+              | No reviews yet
+          if tour.startLocation
+            dt Starts in
+            dd= tour.startLocation.address
+        h3.box__title Start dates
+        if startDates.length > 0
+          ul.dates
+            each date in startDates
+              li= formatDate(date)
+        else
+          p.box__note No upcoming dates yet.

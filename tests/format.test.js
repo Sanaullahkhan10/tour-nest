@@ -1,7 +1,7 @@
 // tests/format.test.js - the helpers that make prices and dates nice to read.
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { formatPrice, formatMonthYear, nextStart } = require('../utils/format');
+const { formatPrice, formatMonthYear, formatDate, stars, nextStart } = require('../utils/format');
 
 describe('formatPrice', () => {
   it('writes PKR and puts commas between the thousands', () => {
@@ -37,5 +37,33 @@ describe('nextStart', () => {
     assert.equal(nextStart([new Date('2027-01-01')], now), null);
     assert.equal(nextStart([], now), null);
     assert.equal(nextStart(undefined, now), null);
+  });
+});
+
+describe('formatDate', () => {
+  it('gives the short month, the day and the year', () => {
+    assert.equal(formatDate(new Date('2027-04-15T00:00:00Z')), 'Apr 15, 2027');
+  });
+
+  it('uses UTC, so a date at midnight keeps its day', () => {
+    assert.equal(formatDate(new Date('2027-06-01T00:00:00Z')), 'Jun 1, 2027');
+  });
+});
+
+describe('stars', () => {
+  const FULL = String.fromCharCode(9733);
+  const EMPTY = String.fromCharCode(9734);
+
+  it('always shows five stars, full ones first', () => {
+    assert.equal(stars(5), FULL.repeat(5));
+    assert.equal(stars(4), FULL.repeat(4) + EMPTY.repeat(1));
+    assert.equal(stars(0), EMPTY.repeat(5));
+  });
+
+  it('rounds a number like 4.6 and keeps strange numbers inside 0 to 5', () => {
+    assert.equal(stars(4.6), FULL.repeat(5));
+    assert.equal(stars(9), FULL.repeat(5));
+    assert.equal(stars(-2), EMPTY.repeat(5));
+    assert.equal(stars('x'), EMPTY.repeat(5));
   });
 });

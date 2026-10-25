@@ -1,0 +1,8 @@
+//- views/error.pug - the page for every error on the website (not found, something went wrong).
+extends base
+
+block content
+  section.error
+    h1.error__code= statusCode
+    p.error__message= message
+    a.button(href='/') Back to all tours

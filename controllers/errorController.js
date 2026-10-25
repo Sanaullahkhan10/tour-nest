@@ -36,6 +36,22 @@ function convertKnownErrors(err) {
   return err;
 }
 
+// The API answers with JSON. The pages of the website answer with an HTML page.
+function isApiRequest(req) {
+  return req.originalUrl === '/api' || req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/api?');
+}
+
+// Draws the error page. If even that fails, we send the plain message.
+function sendErrorPage(res, statusCode, message) {
+  res.status(statusCode).render('error', { title: 'Error ' + statusCode, statusCode: statusCode, message: message }, (renderError, html) => {
+    if (renderError) {
+      console.error('Could not draw the error page:', renderError);
+      return res.type('text/plain').send(message);
+    }
+    res.send(html);
+  });
+}
+
 // Express knows this is an error handler because it has exactly four parameters.
 function globalErrorHandler(err, req, res, next) {
   // If the answer already started going out, we cannot change it. Let Express finish.
@@ -47,6 +63,9 @@ function globalErrorHandler(err, req, res, next) {
 
   // An error we threw on purpose: its message is safe to show.
   if (knownError.isOperational) {
+    if (!isApiRequest(req)) {
+      return sendErrorPage(res, knownError.statusCode, knownError.message);
+    }
     return res.status(knownError.statusCode).json({
       status: knownError.status,
       message: knownError.message,
@@ -55,6 +74,10 @@ function globalErrorHandler(err, req, res, next) {
 
   // Anything else is a bug. The real error goes to our terminal only.
   console.error('Unexpected error:', err);
+
+  if (!isApiRequest(req)) {
+    return sendErrorPage(res, 500, 'Something went wrong');
+  }
 
   const body = {
     status: 'error',

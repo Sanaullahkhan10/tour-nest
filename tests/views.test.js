@@ -9,6 +9,7 @@ const { startApp } = require('./helpers');
 
 // Two tours like the ones the database gives back.
 const hunza = {
+  _id: '64b7f0c2a1b2c3d4e5f60001',
   name: 'The Hunza Valley Explorer',
   duration: 7,
   maxGroupSize: 12,
@@ -20,6 +21,7 @@ const hunza = {
   startDates: [new Date('2099-05-10T00:00:00Z')],
 };
 const skardu = {
+  _id: '64b7f0c2a1b2c3d4e5f60002',
   name: 'Skardu and the Shangrila Lakes',
   duration: 6,
   maxGroupSize: 10,
@@ -56,6 +58,7 @@ describe('overview template', () => {
     assert.ok(html.includes('card__cover--easy'));
     assert.ok(html.includes('card__cover--medium'));
     assert.ok(html.includes('<title>All tours | Tour Nest</title>'));
+    assert.ok(html.includes('href="/tours/64b7f0c2a1b2c3d4e5f60001"'));
   });
 
   it('shows the rating, or says there are no reviews yet', async () => {

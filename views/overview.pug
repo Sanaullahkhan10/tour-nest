@@ -15,7 +15,8 @@ block content
           .card__cover(class='card__cover--' + tour.difficulty)
             span.card__badge= tour.difficulty
           .card__body
-            h2.card__title= tour.name
+            h2.card__title
+              a.card__link(href='/tours/' + tour._id)= tour.name
             p.card__summary= tour.summary
             ul.card__facts
               li #{tour.duration} days
