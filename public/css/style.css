@@ -588,3 +588,22 @@ textarea.form__input {
 .form__message--good {
   color: var(--green);
 }
+
+/* The photo of a user: a small round picture in the header, a bigger one on the account page */
+.header__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff;
+}
+
+.photo-preview {
+  display: block;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #dfe9e2;
+}

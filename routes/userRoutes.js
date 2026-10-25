@@ -2,6 +2,7 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const userController = require('../controllers/userController');
+const { uploadPhoto } = require('../utils/uploadPhoto');
 
 const router = express.Router();
 
@@ -28,6 +29,12 @@ router.patch('/updateMyPassword', authController.protect, authController.updateM
 
 // PATCH /api/v1/users/updateMe  (the logged-in user changes their name or email)
 router.patch('/updateMe', authController.protect, userController.updateMe);
+
+// PATCH /api/v1/users/updateMyPhoto  (the logged-in user uploads a photo: protect, then the file reader)
+router.patch('/updateMyPhoto', authController.protect, uploadPhoto, userController.updateMyPhoto);
+
+// DELETE /api/v1/users/deleteMyPhoto  (the logged-in user removes their photo)
+router.delete('/deleteMyPhoto', authController.protect, userController.deleteMyPhoto);
 
 // DELETE /api/v1/users/deleteMe  (the logged-in user closes their account)
 router.delete('/deleteMe', authController.protect, userController.deleteMe);

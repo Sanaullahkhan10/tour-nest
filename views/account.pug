@@ -6,6 +6,17 @@ block content
     h1.account__title My account
     p.account__role Signed in as #{user.role}
 
+    section#photo-card.form-card
+      h2.form-card__title Your photo
+      img.photo-preview(src=photoUrl(user) alt='Your photo' width='120' height='120' data-photo-preview)
+      form#photo-form.form(method='post' action='/api/v1/users/updateMyPhoto' enctype='multipart/form-data')
+        label.form__label(for='photo') Choose a picture (JPEG, PNG or WebP, up to 5 MB)
+        input#photo.form__input(type='file' name='photo' accept='image/jpeg,image/png,image/webp' required)
+        p.form__message(role='alert' aria-live='polite' data-message)
+        .form__actions
+          button.button.form__submit(type='submit') Save photo
+          button.button.button--danger.form__submit(type='button' data-remove-photo) Remove photo
+
     section.form-card
       h2.form-card__title Your details
       form#details-form.form(method='post' action='/api/v1/users/updateMe')

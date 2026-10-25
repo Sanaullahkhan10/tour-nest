@@ -1,8 +1,11 @@
 // controllers/userController.js - the functions that handle user requests.
 const User = require('../models/userModel');
+const Image = require('../models/imageModel');
 const AppError = require('../utils/appError');
 const { buildPaging } = require('../utils/paging');
 const { cookieName, cookieOptions } = require('../utils/token');
+const { makeSquarePhoto } = require('../utils/imageProcessing');
+const { looksLikeImageId } = require('../utils/photoUrl');
 
 // The only fields a user may change about themselves here.
 const updatableFields = ['name', 'email'];
@@ -97,6 +100,68 @@ async function updateMe(req, res) {
   // save() runs the model rules (valid email, not empty name, email not taken).
   // If a rule is broken, Mongoose throws and the global error handler answers 400.
   await user.save();
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: user,
+    },
+  });
+}
+
+// Removes a saved picture, if "photo" is the id of one. A failure here is only written down:
+// the user already has the new photo, and a picture nobody uses costs us nothing but a little space.
+async function removeSavedPhoto(photo) {
+  if (!looksLikeImageId(photo)) {
+    return;
+  }
+  try {
+    await Image.deleteOne({ _id: photo });
+  } catch (error) {
+    console.error('Could not remove an old photo:', error.message);
+  }
+}
+
+// PATCH /api/v1/users/updateMyPhoto - the logged-in user uploads a new photo.
+// The route runs protect and then uploadPhoto first, so the file is in req.file.
+async function updateMyPhoto(req, res) {
+  if (!req.file) {
+    throw new AppError('Please send a photo (a form with one file, in a field called photo)', 400);
+  }
+
+  // The file becomes a small square JPEG. Anything that is not a real picture is refused here.
+  const picture = await makeSquarePhoto(req.file.buffer);
+  const image = await Image.create({ data: picture.data, contentType: picture.contentType });
+
+  const user = req.user;
+  const oldPhoto = user.photo;
+  user.photo = String(image._id);
+  try {
+    await user.save();
+  } catch (error) {
+    // The user did not get the new picture, so we do not keep it either.
+    await Image.deleteOne({ _id: image._id });
+    throw error;
+  }
+
+  await removeSavedPhoto(oldPhoto);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: user,
+    },
+  });
+}
+
+// DELETE /api/v1/users/deleteMyPhoto - the logged-in user goes back to the plain avatar.
+async function deleteMyPhoto(req, res) {
+  const user = req.user;
+  const oldPhoto = user.photo;
+  user.photo = 'default.jpg';
+  await user.save();
+
+  await removeSavedPhoto(oldPhoto);
 
   res.status(200).json({
     status: 'success',
@@ -256,6 +321,8 @@ async function deleteUser(req, res) {
 module.exports = {
   getMe,
   updateMe,
+  updateMyPhoto,
+  deleteMyPhoto,
   deleteMe,
   getAllUsers,
   getUser,

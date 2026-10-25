@@ -26,8 +26,12 @@ const apiLimiter = createLimiter(300, 15 * 60 * 1000, 'Too many requests from th
 // Login and signup: only 10 in 15 minutes, to slow down people who guess passwords.
 const authLimiter = createLimiter(10, 15 * 60 * 1000, 'Too many login or signup attempts from this IP. Please try again in 15 minutes');
 
+// Photo uploads: only 20 per hour from one IP address. Making a picture small costs the server real work.
+const uploadLimiter = createLimiter(20, 60 * 60 * 1000, 'Too many photo uploads from this IP. Please try again later');
+
 module.exports = {
   createLimiter,
   apiLimiter,
   authLimiter,
+  uploadLimiter,
 };

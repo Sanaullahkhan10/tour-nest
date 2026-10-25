@@ -4,6 +4,7 @@ header.header
   nav.header__nav
     a.header__link(href='/') All tours
     if user
+      img.header__avatar(src=photoUrl(user) alt='' width='28' height='28' data-user-photo)
       a.header__link.header__user(href='/me' data-user-name)= user.name
       button.header__button(type='button' data-logout) Log out
     else

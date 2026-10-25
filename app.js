@@ -8,12 +8,14 @@ const tourRoutes = require('./routes/tourRoutes');
 const userRoutes = require('./routes/userRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const viewRoutes = require('./routes/viewRoutes');
+const imageRoutes = require('./routes/imageRoutes');
 const AppError = require('./utils/appError');
-const { apiLimiter, authLimiter } = require('./utils/rateLimit');
+const { apiLimiter, authLimiter, uploadLimiter } = require('./utils/rateLimit');
 const { rejectOperatorKeys } = require('./utils/checkBody');
 const { readTrustProxyHops } = require('./utils/settings');
 const { globalErrorHandler } = require('./controllers/errorController');
 const formatHelpers = require('./utils/format');
+const { photoUrl } = require('./utils/photoUrl');
 
 const app = express();
 
@@ -23,6 +25,9 @@ app.set('views', path.join(__dirname, 'views'));
 
 // The small helpers for prices and dates can be used in every template.
 Object.assign(app.locals, formatHelpers);
+
+// The templates turn the photo of a user into the address of the picture with photoUrl(user).
+app.locals.photoUrl = photoUrl;
 
 // Behind a proxy (a hosting service), the real IP address of a visitor is in the X-Forwarded-For header.
 // TRUST_PROXY_HOPS tells Express how many proxies to believe. 0 (the default) means we trust none.
@@ -55,6 +60,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Leaflet (the map library) is sent from our own server, so the pages need no scripts from other sites.
 app.use('/vendor/leaflet', express.static(path.join(__dirname, 'node_modules', 'leaflet', 'dist')));
 
+// The pictures that users uploaded (they are saved in the database). A file of the "public" folder,
+// like /img/default-user.svg, is found first and never reaches this line.
+app.use('/img', imageRoutes);
+
 // Read the URL query the simple way: "price[lte]=80000" stays one plain name.
 // We read those names ourselves in the tour controller, so only allowed filters work.
 app.set('query parser', 'simple');
@@ -66,6 +75,7 @@ app.use('/api/v1/users/login', authLimiter);
 app.use('/api/v1/users/signup', authLimiter);
 app.use('/api/v1/users/forgotPassword', authLimiter);
 app.use('/api/v1/users/resetPassword', authLimiter);
+app.use('/api/v1/users/updateMyPhoto', uploadLimiter);
 
 // Lets the app read JSON sent in the body of a request. A body bigger than 10 kb is refused.
 app.use(express.json({ limit: '10kb' }));

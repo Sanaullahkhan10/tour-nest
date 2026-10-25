@@ -20,6 +20,8 @@ const userSchema = new mongoose.Schema({
     trim: true,
     validate: [validator.isEmail, 'Please give a valid email'],
   },
+  // Either "default.jpg" (no photo chosen) or the id of a saved picture (see models/imageModel.js).
+  // Only the photo routes change it, never updateMe, so nobody can point it at another user's picture.
   photo: {
     type: String,
     default: 'default.jpg',

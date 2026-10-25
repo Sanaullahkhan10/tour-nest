@@ -77,6 +77,80 @@ function connectPasswordForm() {
   });
 }
 
+// The address of the picture of a user, like photoUrl() on the server.
+function photoAddress(user) {
+  if (user && /^[0-9a-f]{24}$/.test(user.photo)) {
+    return '/img/' + user.photo;
+  }
+  return '/img/default-user.svg';
+}
+
+// The "Your photo" card: upload a new picture, or go back to the plain avatar.
+function connectPhotoForm() {
+  const form = document.getElementById('photo-form');
+  if (!form) {
+    return;
+  }
+
+  // Shows the saved photo in the card and in the header.
+  function showPhoto(user) {
+    const places = [document.querySelector('[data-photo-preview]'), document.querySelector('[data-user-photo]')];
+    for (let i = 0; i < places.length; i++) {
+      if (places[i]) {
+        places[i].src = photoAddress(user);
+      }
+    }
+  }
+
+  // Runs one request. "send" gives the answer of the API. "goodText" is shown when all went well.
+  async function runPhotoRequest(send, goodText) {
+    switchAccountButtons(form, true);
+    showMessage(form, '');
+
+    try {
+      const result = await send();
+      if (result.ok) {
+        showPhoto(result.body.data.user);
+        form.reset();
+        showMessage(form, goodText, true);
+      } else {
+        const message = result.body && result.body.message;
+        showMessage(form, message || 'Something went wrong. Please try again.');
+      }
+    } catch (error) {
+      showMessage(form, 'Could not reach the server. Please try again.');
+    }
+
+    switchAccountButtons(form, false);
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const file = form.elements.photo.files && form.elements.photo.files[0];
+    if (!file) {
+      showMessage(form, 'Please choose a picture first.');
+      return;
+    }
+    // The server refuses more than 5 MB too. Here the visitor learns it without waiting for the upload.
+    if (file.size > 5 * 1024 * 1024) {
+      showMessage(form, 'That file is too big. The limit is 5 MB.');
+      return;
+    }
+
+    const data = new FormData();
+    data.append('photo', file);
+    return runPhotoRequest(() => sendForm('/api/v1/users/updateMyPhoto', data, 'PATCH'), 'Your photo was saved.');
+  });
+
+  const removeButton = form.querySelector('[data-remove-photo]');
+  if (removeButton) {
+    removeButton.addEventListener('click', () => {
+      return runPhotoRequest(() => sendJson('/api/v1/users/deleteMyPhoto', null, 'DELETE'), 'Your photo was removed.');
+    });
+  }
+}
+
 // The "Close your account" button. It asks first.
 function connectCloseAccount() {
   const box = document.getElementById('close-account');
@@ -111,4 +185,5 @@ function connectCloseAccount() {
 
 connectDetailsForm();
 connectPasswordForm();
+connectPhotoForm();
 connectCloseAccount();
