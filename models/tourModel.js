@@ -1,5 +1,6 @@
 // models/tourModel.js - describes what a tour looks like in the database.
 const mongoose = require('mongoose');
+const { makeSlug } = require('../utils/slug');
 
 // A schema is the "shape" of one tour: which fields it has and the rules for each.
 // The parts of a GeoJSON "Point" that MongoDB understands. It is a function, so each schema
@@ -159,7 +160,68 @@ const tourSchema = new mongoose.Schema({
       message: 'A tour can have at most 20 locations',
     },
   },
+
+  // The name of the tour written for an address, like "the-hunza-valley-explorer".
+  // The model makes it from the name (see the "save" step below). Nobody sets it by hand.
+  slug: {
+    type: String,
+  },
+
+  // A secret tour is hidden from visitors (see the searches below).
+  secretTour: {
+    type: Boolean,
+    default: false,
+  },
+
+  // The guides of the tour: ids of users with the role guide or lead-guide.
+  guides: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    validate: {
+      validator: function (list) {
+        return list.length <= 5;
+      },
+      message: 'A tour can have at most 5 guides',
+    },
+  },
+
+  // The pictures. Each one is the id of a picture saved in the database (see models/imageModel.js).
+  imageCover: {
+    type: String,
+  },
+  images: {
+    type: [String],
+    validate: {
+      validator: function (list) {
+        return list.length <= 3;
+      },
+      message: 'A tour can have at most 3 gallery pictures',
+    },
+  },
 });
+
+// Two tours must never have the same slug. "sparse" means: tours that have no slug (the ones made
+// before slugs existed) are left out of this rule.
+tourSchema.index({ slug: 1 }, { unique: true, sparse: true });
+
+// Makes the slug from the name: for a new tour, when the name changes, and for a tour that has none yet.
+tourSchema.pre('save', function () {
+  if (this.isNew || this.isModified('name') || !this.slug) {
+    const slug = makeSlug(this.name);
+    if (slug) {
+      this.slug = slug;
+    }
+  }
+});
+
+// Visitors never see secret tours: the searches that READ tours skip them.
+// The ones that change or delete a tour (findByIdAndUpdate, findByIdAndDelete) are not listed on purpose,
+// so the staff can still manage a secret tour.
+function hideSecretTours() {
+  this.where({ secretTour: { $ne: true } });
+}
+tourSchema.pre('find', hideSecretTours);
+tourSchema.pre('findOne', hideSecretTours);
+tourSchema.pre('countDocuments', hideSecretTours);
 
 // The 2dsphere index lets MongoDB answer "which tours start near this point" quickly.
 tourSchema.index({ startLocation: '2dsphere' });

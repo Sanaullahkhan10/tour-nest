@@ -28,24 +28,29 @@ function uploadPhoto(req, res, next) {
     if (!error) {
       return next();
     }
-
-    if (error instanceof multer.MulterError) {
-      if (error.code === 'LIMIT_FILE_SIZE') {
-        return next(new AppError('The photo is too big (the limit is 5 MB)', 413));
-      }
-      if (error.code === 'LIMIT_UNEXPECTED_FILE' || error.code === 'LIMIT_FILE_COUNT') {
-        return next(new AppError('Please send one file, in a field called photo', 400));
-      }
-      if (error.code === 'LIMIT_FIELD_COUNT') {
-        return next(new AppError('Please send only the photo file, with no other fields', 400));
-      }
-    }
-    // A broken form (the parser's own errors) is the visitor's mistake too.
-    return next(new AppError('The upload was not understood. Please send the photo as a form with one file', 400));
+    return next(uploadErrorFor(error, 'Please send one file, in a field called photo'));
   });
+}
+
+// Turns an error of the upload reader into a clear AppError. "fieldHelp" says which files are allowed.
+function uploadErrorFor(error, fieldHelp) {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return new AppError('The file is too big (the limit is 5 MB)', 413);
+    }
+    if (error.code === 'LIMIT_UNEXPECTED_FILE' || error.code === 'LIMIT_FILE_COUNT') {
+      return new AppError(fieldHelp, 400);
+    }
+    if (error.code === 'LIMIT_FIELD_COUNT') {
+      return new AppError('Please send only the file, with no other fields', 400);
+    }
+  }
+  // A broken form (the parser's own errors) is the visitor's mistake too.
+  return new AppError('The upload was not understood. Please send the file as a form', 400);
 }
 
 module.exports = {
   maxBytes,
   uploadPhoto,
+  uploadErrorFor,
 };

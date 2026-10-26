@@ -13,10 +13,12 @@ block content
       each tour in tours
         article.card
           .card__cover(class='card__cover--' + tour.difficulty)
+            if tour.imageCover
+              img.card__image(src='/img/' + tour.imageCover alt='' loading='lazy')
             span.card__badge= tour.difficulty
           .card__body
             h2.card__title
-              a.card__link(href='/tours/' + tour._id)= tour.name
+              a.card__link(href='/tours/' + (tour.slug || tour._id))= tour.name
             p.card__summary= tour.summary
             ul.card__facts
               li #{tour.duration} days

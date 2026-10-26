@@ -20,8 +20,9 @@ const photoSize = 400;
 
 const unreadableMessage = 'We could not read that file. Please choose a JPEG, PNG or WebP picture';
 
-// Gives back { data, contentType } with a square JPEG. "options.maxPixels" is only for the tests.
-async function makeSquarePhoto(buffer, options) {
+// Gives back { data, contentType } with a JPEG of exactly width x height pixels (cut from the middle).
+// "options.maxPixels" is only for the tests.
+async function makePicture(buffer, width, height, options) {
   const limit = (options && options.maxPixels) || maxPixels;
 
   if (!Buffer.isBuffer(buffer) || buffer.length === 0) {
@@ -48,8 +49,8 @@ async function makeSquarePhoto(buffer, options) {
       .rotate()
       // A JPEG has no see-through parts, so see-through parts of a PNG become white.
       .flatten({ background: '#ffffff' })
-      // Cut the picture to a square from the middle.
-      .resize(photoSize, photoSize, { fit: 'cover' })
+      // Cut the picture to the wanted size from the middle.
+      .resize(width, height, { fit: 'cover' })
       .jpeg({ quality: 85 })
       .toBuffer();
     return { data: data, contentType: 'image/jpeg' };
@@ -58,8 +59,20 @@ async function makeSquarePhoto(buffer, options) {
   }
 }
 
+// The photo of a user: a square.
+function makeSquarePhoto(buffer, options) {
+  return makePicture(buffer, photoSize, photoSize, options);
+}
+
+// The sizes of the pictures of a tour.
+const coverSize = { width: 1400, height: 900 };
+const gallerySize = { width: 1200, height: 800 };
+
 module.exports = {
   maxPixels,
   photoSize,
+  coverSize,
+  gallerySize,
+  makePicture,
   makeSquarePhoto,
 };

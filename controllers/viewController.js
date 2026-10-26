@@ -1,6 +1,8 @@
 // controllers/viewController.js - the functions that build the web pages (HTML) of the site.
 const Tour = require('../models/tourModel');
 const Review = require('../models/reviewModel');
+const User = require('../models/userModel');
+const { looksLikeSlug } = require('../utils/slug');
 const AppError = require('../utils/appError');
 const { buildMapPoints } = require('../utils/mapPoints');
 const { looksLikeToken } = require('../utils/resetToken');
@@ -14,7 +16,7 @@ async function getOverview(req, res) {
   // The limit is a safety net. Paging for the website comes later.
   const tours = await Tour.find()
     .sort({ name: 1, _id: 1 })
-    .select('name duration maxGroupSize difficulty price summary ratingsAverage ratingsQuantity startDates')
+    .select('name duration maxGroupSize difficulty price summary ratingsAverage ratingsQuantity startDates slug imageCover')
     .limit(100)
     .lean();
 
@@ -24,14 +26,36 @@ async function getOverview(req, res) {
   });
 }
 
-// GET /tours/:id - the page of one tour.
+// The guides of a tour, in the order of the tour: only name, photo and role (never the email).
+// A closed account is not found, so that guide is left out.
+async function findGuides(ids) {
+  if (!ids || ids.length === 0) {
+    return [];
+  }
+  const found = await User.find({ _id: { $in: ids } }).select('name photo role').lean();
+  const guides = [];
+  for (let i = 0; i < ids.length; i++) {
+    const guide = found.find((user) => String(user._id) === String(ids[i]));
+    if (guide) {
+      guides.push(guide);
+    }
+  }
+  return guides;
+}
+
+// GET /tours/:id - the page of one tour. The address holds the id of the tour or its slug.
 async function getTour(req, res) {
-  // A badly shaped id cannot belong to a tour, so for the visitor it is simply "not found".
-  if (!idPattern.test(req.params.id)) {
+  // An address that is neither an id nor a slug cannot belong to a tour, so for the visitor it is simply "not found".
+  let search;
+  if (idPattern.test(req.params.id)) {
+    search = Tour.findById(req.params.id);
+  } else if (looksLikeSlug(req.params.id)) {
+    search = Tour.findOne({ slug: req.params.id });
+  } else {
     throw new AppError('We could not find that tour', 404);
   }
 
-  const tour = await Tour.findById(req.params.id).lean();
+  const tour = await search.lean();
   if (!tour) {
     throw new AppError('We could not find that tour', 404);
   }
@@ -90,6 +114,7 @@ async function getTour(req, res) {
     myReview: myReview,
     tourId: String(tour._id),
     mapPoints: buildMapPoints(tour),
+    guides: await findGuides(tour.guides),
   });
 }
 

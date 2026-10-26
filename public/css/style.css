@@ -607,3 +607,99 @@ textarea.form__input {
   object-fit: cover;
   background: #dfe9e2;
 }
+
+/* The pictures of a tour: the cover in the card and in the page header, the gallery, and the guides */
+.card__cover {
+  position: relative;
+}
+
+.card__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card__badge {
+  position: relative;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero--photo {
+  padding-top: 110px;
+}
+
+.hero--photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.65));
+}
+
+.hero__badge,
+.hero__title,
+.hero__summary {
+  position: relative;
+  z-index: 1;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.gallery__image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #dfe9e2;
+}
+
+.guides {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guides__item {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  column-gap: 12px;
+  align-items: center;
+}
+
+.guides__photo {
+  grid-row: span 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #dfe9e2;
+}
+
+.guides__name {
+  font-weight: 600;
+}
+
+.guides__role {
+  font-size: 0.85rem;
+  color: var(--muted);
+}

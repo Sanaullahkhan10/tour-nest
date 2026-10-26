@@ -3,6 +3,7 @@ const express = require('express');
 const tourController = require('../controllers/tourController');
 const authController = require('../controllers/authController');
 const reviewController = require('../controllers/reviewController');
+const { uploadTourImages } = require('../utils/uploadTourImages');
 
 const router = express.Router();
 
@@ -33,6 +34,9 @@ router.post('/', authController.protect, authController.restrictTo('admin', 'lea
 
 // PATCH /api/v1/tours/:id  (changes some fields of one tour)
 router.patch('/:id', authController.protect, authController.restrictTo('admin', 'lead-guide'), tourController.updateTour);
+
+// PATCH /api/v1/tours/:id/images  (the cover and gallery pictures: protect, restrictTo, the file reader, then the function)
+router.patch('/:id/images', authController.protect, authController.restrictTo('admin', 'lead-guide'), uploadTourImages, tourController.updateTourImages);
 
 // DELETE /api/v1/tours/:id  (removes one tour)
 router.delete('/:id', authController.protect, authController.restrictTo('admin', 'lead-guide'), tourController.deleteTour);

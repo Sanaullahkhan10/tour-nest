@@ -1,0 +1,16 @@
+{
+  "guides": [
+    { "name": "Imran Baig", "email": "imran.baig@tournest.example", "role": "lead-guide" },
+    { "name": "Zainab Karim", "email": "zainab.karim@tournest.example", "role": "guide" },
+    { "name": "Tariq Hussain", "email": "tariq.hussain@tournest.example", "role": "guide" },
+    { "name": "Nasreen Abbasi", "email": "nasreen.abbasi@tournest.example", "role": "lead-guide" }
+  ],
+  "assignments": {
+    "The Hunza Valley Explorer": ["imran.baig@tournest.example", "zainab.karim@tournest.example"],
+    "Skardu and the Shangrila Lakes": ["imran.baig@tournest.example", "tariq.hussain@tournest.example"],
+    "Fairy Meadows and Nanga Parbat View": ["nasreen.abbasi@tournest.example", "tariq.hussain@tournest.example"],
+    "Swat Valley and Kalam Retreat": ["nasreen.abbasi@tournest.example", "zainab.karim@tournest.example"],
+    "Neelum Valley Riverside Escape": ["zainab.karim@tournest.example", "tariq.hussain@tournest.example"],
+    "Deosai Plains High Camp": ["imran.baig@tournest.example", "nasreen.abbasi@tournest.example"]
+  }
+}

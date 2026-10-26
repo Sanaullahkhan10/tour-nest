@@ -76,6 +76,7 @@ app.use('/api/v1/users/signup', authLimiter);
 app.use('/api/v1/users/forgotPassword', authLimiter);
 app.use('/api/v1/users/resetPassword', authLimiter);
 app.use('/api/v1/users/updateMyPhoto', uploadLimiter);
+app.use('/api/v1/tours/:id/images', uploadLimiter);
 
 // Lets the app read JSON sent in the body of a request. A body bigger than 10 kb is refused.
 app.use(express.json({ limit: '10kb' }));

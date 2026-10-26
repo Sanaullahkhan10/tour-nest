@@ -8,7 +8,9 @@ block head
 block content
   a.back-link(href='/') &larr; All tours
 
-  section.hero(class='hero--' + tour.difficulty)
+  section.hero(class=['hero--' + tour.difficulty, tour.imageCover ? 'hero--photo' : ''])
+    if tour.imageCover
+      img.hero__image(src='/img/' + tour.imageCover alt='')
     span.hero__badge= tour.difficulty
     h1.hero__title= tour.name
     p.hero__summary= tour.summary
@@ -18,6 +20,12 @@ block content
       if tour.description
         h2 About this tour
         p.detail__text= tour.description
+
+      if tour.images && tour.images.length > 0
+        h2 Photos
+        .gallery
+          each image, index in tour.images
+            img.gallery__image(src='/img/' + image alt=tour.name + ', photo ' + (index + 1) loading='lazy' width='600' height='400')
 
       if stops.length > 0
         h2 The route, day by day
@@ -91,6 +99,14 @@ block content
               li= formatDate(date)
         else
           p.box__note No upcoming dates yet.
+        if guides && guides.length > 0
+          h3.box__title Your guides
+          ul.guides
+            each guide in guides
+              li.guides__item
+                img.guides__photo(src=photoUrl(guide) alt='' width='40' height='40' loading='lazy')
+                span.guides__name= guide.name
+                span.guides__role= guide.role === 'lead-guide' ? 'Lead guide' : 'Guide'
 
   script(src='/js/reviews.js' defer)
   if mapPoints && mapPoints.length > 0

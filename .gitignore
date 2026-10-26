@@ -17,3 +17,6 @@ coverage/
 # Junk files that Windows and Mac create on their own
 Thumbs.db
 .DS_Store
+
+# The tour pictures you put on your computer for dev-data/enrich-tours.js (they are saved in the database, not in git)
+dev-data/images/

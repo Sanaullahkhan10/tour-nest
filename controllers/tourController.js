@@ -1,6 +1,11 @@
 // controllers/tourController.js - the functions that handle tour requests.
 const Tour = require('../models/tourModel');
 const Review = require('../models/reviewModel');
+const User = require('../models/userModel');
+const Image = require('../models/imageModel');
+const { makePicture, coverSize, gallerySize } = require('../utils/imageProcessing');
+const { looksLikeImageId } = require('../utils/photoUrl');
+const { makeSlug } = require('../utils/slug');
 const AppError = require('../utils/appError');
 const { buildPaging } = require('../utils/paging');
 const { readUnit, readDistance, readLatLng, distanceToRadians, metersToUnit } = require('../utils/geo');
@@ -139,6 +144,10 @@ const selectableFields = [
   'ratingsQuantity',
   'startLocation',
   'locations',
+  'slug',
+  'guides',
+  'imageCover',
+  'images',
 ];
 
 // Turns the fields text from the URL (for example "name,price") into a list of
@@ -227,7 +236,8 @@ async function getAllTours(req, res) {
 async function getTour(req, res) {
   // req.params.id is whatever the visitor typed in place of ":id" in the URL.
   // A badly shaped id makes Mongoose throw an error that the global handler turns into a 400.
-  const tour = await Tour.findById(req.params.id);
+  // The guides come with the tour: only their name, photo and role (never the email).
+  const tour = await Tour.findById(req.params.id).populate({ path: 'guides', select: 'name photo role' });
 
   // The id looked fine, but no tour has this id.
   if (!tour) {
@@ -269,6 +279,7 @@ async function createTour(req, res) {
   // req.body is the JSON the visitor sent. The model checks it before saving.
   // If a rule is broken, Mongoose throws an error and the global handler answers 400.
   refuseSystemFields(req.body);
+  await checkStaffBody(req.body);
   const newTour = await Tour.create(req.body);
 
   // 201 means "created".
@@ -283,7 +294,10 @@ async function createTour(req, res) {
 // PATCH /api/v1/tours/:id - changes only the fields the visitor sends.
 async function updateTour(req, res) {
   refuseSystemFields(req.body);
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+  await checkStaffBody(req.body);
+  // A new name means a new slug (findByIdAndUpdate does not run the "save" step of the model).
+  const changes = withSlug(req.body);
+  const tour = await Tour.findByIdAndUpdate(req.params.id, changes, {
     // Send back the tour AFTER the change (the default is the old one).
     returnDocument: 'after',
     // Check the changed fields against the rules of the model (off by default).
@@ -327,6 +341,8 @@ async function deleteTour(req, res) {
 // GET /api/v1/tours/tour-stats - numbers about the tours, one line for each difficulty.
 async function getTourStats(req, res) {
   const stats = await Tour.aggregate([
+    // Secret tours are not counted.
+    { $match: { secretTour: { $ne: true } } },
     // 1. Put the tours in groups by difficulty and work out the numbers of each group.
     {
       $group: {
@@ -384,7 +400,7 @@ async function getMonthlyPlan(req, res) {
     { $unwind: '$startDates' },
 
     // 2. Keep only the dates of this year.
-    { $match: { startDates: { $gte: yearStart, $lt: nextYearStart } } },
+    { $match: { startDates: { $gte: yearStart, $lt: nextYearStart }, secretTour: { $ne: true } } },
 
     // 3. Group the lines by month: count the starts, and collect the tour names (each name once).
     {
@@ -526,6 +542,8 @@ async function getDistances(req, res) {
         distanceMultiplier: metersToUnit(unitResult.unit),
         // Which place field to measure to (this keeps working if we index other fields later).
         key: 'startLocation',
+        // Secret tours are left out.
+        query: { secretTour: { $ne: true } },
         // Measure on the round earth, not on a flat map.
         spherical: true,
       },
@@ -561,8 +579,132 @@ async function getDistances(req, res) {
   });
 }
 
+// The fields that nobody sets by hand in a create or update, and why.
+const handsOffFields = {
+  slug: 'It comes from the name',
+  imageCover: 'Use PATCH /api/v1/tours/:id/images',
+  images: 'Use PATCH /api/v1/tours/:id/images',
+};
+
+// Checks the guides: a list of up to 5 different ids, and each one must be an existing user
+// with the role guide or lead-guide. "guides" may be missing (nothing to check then).
+async function checkGuides(guides) {
+  if (guides === undefined) {
+    return;
+  }
+  const idShape = /^[0-9a-fA-F]{24}$/;
+  if (!Array.isArray(guides) || guides.length > 5 || guides.some((id) => typeof id !== 'string' || !idShape.test(id))) {
+    throw new AppError('guides must be a list of up to 5 user ids', 400);
+  }
+
+  const wanted = Array.from(new Set(guides.map((id) => id.toLowerCase())));
+  if (wanted.length === 0) {
+    return;
+  }
+  const found = await User.find({ _id: { $in: wanted }, role: { $in: ['guide', 'lead-guide'] } }).select('_id');
+  if (found.length !== wanted.length) {
+    throw new AppError('Every guide must be an existing user with the role guide or lead-guide', 400);
+  }
+}
+
+// The checks of the staff fields, for create and update.
+async function checkStaffBody(body) {
+  if (!body || typeof body !== 'object') {
+    return;
+  }
+  const names = Object.keys(handsOffFields);
+  for (let i = 0; i < names.length; i++) {
+    if (Object.prototype.hasOwnProperty.call(body, names[i])) {
+      throw new AppError('You cannot set ' + names[i] + ' by hand. ' + handsOffFields[names[i]], 400);
+    }
+  }
+  await checkGuides(body.guides);
+}
+
+// A copy of the update body with the new slug, when the update changes the name.
+function withSlug(body) {
+  if (body && typeof body.name === 'string' && makeSlug(body.name)) {
+    return Object.assign({}, body, { slug: makeSlug(body.name) });
+  }
+  return body;
+}
+
+// Removes saved pictures. A failure is only written down: the tour already has its new pictures.
+async function removeImages(ids) {
+  for (let i = 0; i < ids.length; i++) {
+    if (!looksLikeImageId(ids[i])) {
+      continue;
+    }
+    try {
+      await Image.deleteOne({ _id: ids[i] });
+    } catch (error) {
+      console.error('Could not remove an old picture:', error.message);
+    }
+  }
+}
+
+// PATCH /api/v1/tours/:id/images - the staff uploads the cover (one file, "imageCover")
+// and/or the gallery (up to 3 files, "images"). New pictures replace the old ones.
+// The route runs protect, restrictTo and the file reader first, so the files are in req.files.
+async function updateTourImages(req, res) {
+  const files = req.files || {};
+  const cover = files.imageCover ? files.imageCover[0] : null;
+  const gallery = files.images || [];
+  if (!cover && gallery.length === 0) {
+    throw new AppError('Please send imageCover (one file) and/or images (up to three files)', 400);
+  }
+
+  const tour = await Tour.findById(req.params.id);
+  if (!tour) {
+    throw new AppError('No tour found with that id', 404);
+  }
+
+  // Every file is made small and checked first. If one file is bad, nothing is saved.
+  const coverPicture = cover ? await makePicture(cover.buffer, coverSize.width, coverSize.height) : null;
+  const galleryPictures = [];
+  for (let i = 0; i < gallery.length; i++) {
+    galleryPictures.push(await makePicture(gallery[i].buffer, gallerySize.width, gallerySize.height));
+  }
+
+  const newIds = [];
+  const oldIds = [];
+  try {
+    if (coverPicture) {
+      const image = await Image.create({ data: coverPicture.data, contentType: coverPicture.contentType });
+      newIds.push(String(image._id));
+      oldIds.push(tour.imageCover);
+      tour.imageCover = String(image._id);
+    }
+    if (galleryPictures.length > 0) {
+      const galleryIds = [];
+      for (let i = 0; i < galleryPictures.length; i++) {
+        const image = await Image.create({ data: galleryPictures[i].data, contentType: galleryPictures[i].contentType });
+        newIds.push(String(image._id));
+        galleryIds.push(String(image._id));
+      }
+      oldIds.push(...tour.images);
+      tour.images = galleryIds;
+    }
+    await tour.save();
+  } catch (error) {
+    // The tour did not get the new pictures, so we do not keep them either.
+    await removeImages(newIds);
+    throw error;
+  }
+
+  await removeImages(oldIds);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour: tour,
+    },
+  });
+}
+
 module.exports = {
   getAllTours,
+  updateTourImages,
   getTourStats,
   getMonthlyPlan,
   getToursWithin,

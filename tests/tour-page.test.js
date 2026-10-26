@@ -142,7 +142,7 @@ describe('tour page route', () => {
 
   it('answers with a 404 page for a badly shaped id, without asking the database', async () => {
     const callsBefore = findById.mock.callCount();
-    const reply = await fetch(site.baseUrl + '/tours/abc');
+    const reply = await fetch(site.baseUrl + '/tours/Not_A_Slug');
     assert.equal(reply.status, 404);
     assert.ok((await reply.text()).includes('We could not find that tour'));
     assert.equal(findById.mock.callCount(), callsBefore);
