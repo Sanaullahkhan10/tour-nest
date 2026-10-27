@@ -1,0 +1,19 @@
+//- views/pay-payfast.pug - sends the customer to PayFast. The form is sent by public/js/bookings.js at once.
+//- If the script cannot run, the customer presses the button.
+extends base
+
+block content
+  .account
+    h1.account__title Pay with PayFast
+    section.form-card
+      h2.form-card__title= booking.tourName
+      p.booking__line #{formatDate(booking.startDate)} &middot; #{booking.guests} #{booking.guests === 1 ? 'guest' : 'guests'}
+      p.booking__total Total #{formatPrice(booking.amount)}
+      p.form-card__note You are going to PayFast to pay. Please wait a moment.
+      form#payfast-form(method='post' action=form.action)
+        each value, name in form.fields
+          input(type='hidden' name=name value=value)
+        button.button.form__submit(type='submit') Continue to PayFast
+      p.form-card__note #[a(href='/my-tours') Back to My tours]
+
+  script(src='/js/bookings.js' defer)

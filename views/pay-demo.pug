@@ -1,0 +1,16 @@
+//- views/pay-demo.pug - the pretend payment page. No card is asked and no money is taken.
+extends base
+
+block content
+  .account
+    h1.account__title Demo payment
+    section.form-card
+      p.notice.notice--bad This is a demo. No real money is taken and no card details are needed.
+      h2.form-card__title= booking.tourName
+      p.booking__line #{formatDate(booking.startDate)} &middot; #{booking.guests} #{booking.guests === 1 ? 'guest' : 'guests'}
+      p.booking__total Total #{formatPrice(booking.amount)}
+      p.form__message(role='alert' aria-live='polite' data-message)
+      button#demo-pay.button.form__submit(type='button' data-booking=String(booking._id)) Pay #{formatPrice(booking.amount)} (demo)
+      p.form-card__note #[a(href='/my-tours') Back to My tours]
+
+  script(src='/js/bookings.js' defer)

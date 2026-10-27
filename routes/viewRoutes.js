@@ -2,6 +2,7 @@
 const express = require('express');
 const viewController = require('../controllers/viewController');
 const authController = require('../controllers/authController');
+const bookingViewController = require('../controllers/bookingViewController');
 
 const router = express.Router();
 
@@ -27,5 +28,19 @@ router.get('/forgot-password', authController.attachUser, viewController.getForg
 
 // GET /reset-password/:token  (the page of the link in the email)
 router.get('/reset-password/:token', authController.attachUser, viewController.getResetPasswordPage);
+
+// GET /my-tours  (the bookings of the logged-in visitor)
+router.get('/my-tours', authController.attachUser, bookingViewController.getMyToursPage);
+
+// GET /pay/:id  (the payment page of a booking)
+router.get('/pay/:id', authController.attachUser, bookingViewController.getPayPage);
+
+// PayFast sends the customer back to one of these two addresses, by GET (an address) or by POST (a form).
+// There is no login check: the customer's cookie may not come along. The validation hash is the proof.
+const readForm = express.urlencoded({ extended: false, limit: '10kb' });
+router.get('/payment/payfast/success', bookingViewController.payfastReturn);
+router.post('/payment/payfast/success', readForm, bookingViewController.payfastReturn);
+router.get('/payment/payfast/failure', bookingViewController.payfastReturn);
+router.post('/payment/payfast/failure', readForm, bookingViewController.payfastReturn);
 
 module.exports = router;

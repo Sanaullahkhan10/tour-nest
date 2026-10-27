@@ -9,6 +9,7 @@ const userRoutes = require('./routes/userRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const viewRoutes = require('./routes/viewRoutes');
 const imageRoutes = require('./routes/imageRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 const AppError = require('./utils/appError');
 const { apiLimiter, authLimiter, uploadLimiter } = require('./utils/rateLimit');
 const { rejectOperatorKeys } = require('./utils/checkBody');
@@ -16,6 +17,7 @@ const { readTrustProxyHops } = require('./utils/settings');
 const { globalErrorHandler } = require('./controllers/errorController');
 const formatHelpers = require('./utils/format');
 const { photoUrl } = require('./utils/photoUrl');
+const payfast = require('./utils/payfast');
 
 const app = express();
 
@@ -45,6 +47,9 @@ app.use(
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         // The pictures of the map come from the OpenStreetMap server.
         'img-src': ["'self'", 'data:', 'https://tile.openstreetmap.org'],
+        // The payment page sends a form to PayFast. Without this line the browser refuses to send it.
+        // (*.apps.net.pk covers the other servers of PayFast, which the form may be passed on to.)
+        'form-action': ["'self'", payfast.formOrigin(), 'https://*.apps.net.pk'],
       },
     },
     // OpenStreetMap blocks a website whose visitors send no referrer, so we send the
@@ -108,6 +113,9 @@ app.use('/api/v1/users', userRoutes);
 
 // Every URL that starts with /api/v1/reviews is handled by the review routes.
 app.use('/api/v1/reviews', reviewRoutes);
+
+// Every URL that starts with /api/v1/bookings is handled by the booking routes.
+app.use('/api/v1/bookings', bookingRoutes);
 
 // If we reach this line, no route above matched the URL, so it is a 404.
 app.use((req, res, next) => {

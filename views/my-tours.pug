@@ -1,0 +1,31 @@
+//- views/my-tours.pug - the bookings of the logged-in visitor. public/js/bookings.js makes the Cancel buttons work.
+extends base
+
+block content
+  .account
+    h1.account__title My tours
+
+    if notice
+      p.notice(class=(notice.good ? 'notice--good' : 'notice--bad'))= notice.text
+
+    if bookings.length === 0
+      p.account__role You have no bookings yet. #[a(href='/') See the tours]
+    else
+      each booking in bookings
+        section.booking
+          h2.booking__title= booking.tourName
+          p.booking__line #{formatDate(booking.startDate)} &middot; #{booking.guests} #{booking.guests === 1 ? 'guest' : 'guests'} &middot; #{formatPrice(booking.amount)}
+          p.booking__line.booking__ref Reference #{booking.basketId}
+          if booking.status === 'paid'
+            p.booking__status.booking__status--paid Paid
+          else if booking.status === 'cancelled'
+            p.booking__status Cancelled
+          else if booking.expired
+            p.booking__status Expired. Please book the tour again.
+          else
+            p.booking__status.booking__status--pending Waiting for payment
+            .form__actions
+              a.button(href='/pay/' + booking._id) Pay now
+              button.button.button--danger(type='button' data-cancel-booking=String(booking._id)) Cancel
+
+  script(src='/js/bookings.js' defer)

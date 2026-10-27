@@ -99,6 +99,22 @@ block content
               li= formatDate(date)
         else
           p.box__note No upcoming dates yet.
+        if startDates.length > 0
+          h3.box__title Book this tour
+          if user
+            form#booking-form.form(method='post' data-tour=tourId)
+              label.form__label(for='booking-date') Start date
+              select#booking-date.form__input(name='startDate' required)
+                each date in startDates
+                  option(value=new Date(date).toISOString())= formatDate(date)
+              label.form__label(for='booking-guests') Guests (up to #{tour.maxGroupSize})
+              input#booking-guests.form__input(type='number' name='guests' min='1' max=tour.maxGroupSize value='1' required)
+              label.form__label(for='booking-mobile') Mobile number
+              input#booking-mobile.form__input(type='tel' name='mobile' required placeholder='03451234567' autocomplete='tel' inputmode='tel')
+              p.form__message(role='alert' aria-live='polite' data-message)
+              button.button.form__submit(type='submit') Continue to payment
+          else
+            p.box__note #[a(href='/login') Log in] to book this tour.
         if guides && guides.length > 0
           h3.box__title Your guides
           ul.guides
@@ -109,6 +125,7 @@ block content
                 span.guides__role= guide.role === 'lead-guide' ? 'Lead guide' : 'Guide'
 
   script(src='/js/reviews.js' defer)
+  script(src='/js/bookings.js' defer)
   if mapPoints && mapPoints.length > 0
     script(src='/vendor/leaflet/leaflet.js' defer)
     script(src='/js/map.js' defer)
