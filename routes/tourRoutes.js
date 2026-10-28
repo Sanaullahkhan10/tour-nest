@@ -11,6 +11,10 @@ const router = express.Router();
 // GET /api/v1/tours  (the "/api/v1/tours" part is added in app.js)
 router.get('/', tourController.getAllTours);
 
+// GET /api/v1/tours/top-5-cheap  (the 5 cheapest tours)
+// Like "tour-stats" below, it must come before "/:id", or "/:id" would take the word for a tour id.
+router.get('/top-5-cheap', tourController.getTopCheapTours);
+
 // GET /api/v1/tours/tour-stats  (numbers about the tours, one line for each difficulty)
 // This route must come BEFORE "/:id". Express checks routes from top to bottom,
 // and "/:id" would take the word "tour-stats" as a tour id.

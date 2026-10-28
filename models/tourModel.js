@@ -203,6 +203,9 @@ const tourSchema = new mongoose.Schema({
 // before slugs existed) are left out of this rule.
 tourSchema.index({ slug: 1 }, { unique: true, sparse: true });
 
+// The list of tours is often filtered and sorted by price and rating. This index makes those searches fast.
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+
 // Makes the slug from the name: for a new tour, when the name changes, and for a tour that has none yet.
 tourSchema.pre('save', function () {
   if (this.isNew || this.isModified('name') || !this.slug) {

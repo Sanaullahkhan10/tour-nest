@@ -338,6 +338,24 @@ async function deleteTour(req, res) {
   res.status(204).send();
 }
 
+// GET /api/v1/tours/top-5-cheap - the 5 cheapest tours. When two tours cost the same, the better rated one comes first.
+// It is the same as GET /api/v1/tours?sort=price,-ratingsAverage&limit=5, with a short list of fields.
+async function getTopCheapTours(req, res) {
+  const tours = await Tour.find()
+    .sort({ price: 1, ratingsAverage: -1, _id: 1 })
+    .limit(5)
+    .select('name slug price duration difficulty summary ratingsAverage ratingsQuantity imageCover')
+    .lean();
+
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      tours: tours,
+    },
+  });
+}
+
 // GET /api/v1/tours/tour-stats - numbers about the tours, one line for each difficulty.
 async function getTourStats(req, res) {
   const stats = await Tour.aggregate([
@@ -705,6 +723,7 @@ async function updateTourImages(req, res) {
 module.exports = {
   getAllTours,
   updateTourImages,
+  getTopCheapTours,
   getTourStats,
   getMonthlyPlan,
   getToursWithin,

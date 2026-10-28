@@ -42,6 +42,7 @@ The API is described in [docs/API.md](docs/API.md).
 | Map | Leaflet and OpenStreetMap |
 | Payments | PayFast (Pakistan) and a demo checkout |
 | Safety | helmet (Content Security Policy), rate limits, input checks |
+| Speed | gzip compression of pages and API answers, database indexes, long caching of pictures |
 | Tests | the test runner of Node (`node --test`), more than 330 tests |
 | Hosting | Render (free plan), tests on every push with GitHub Actions |
 

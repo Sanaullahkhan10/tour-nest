@@ -4,6 +4,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
+const compression = require('compression');
 const tourRoutes = require('./routes/tourRoutes');
 const userRoutes = require('./routes/userRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
@@ -57,6 +58,10 @@ app.use(
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   })
 );
+
+// Makes pages, CSS, scripts and API answers smaller on their way to the browser (gzip), so they load faster.
+// Pictures are already small and are left alone (compression only touches text kinds, and answers over 1 kb).
+app.use(compression());
 
 // The files in the "public" folder (the CSS, later the images) are sent as they are.
 // This comes right after helmet, so these files get the safe headers too.

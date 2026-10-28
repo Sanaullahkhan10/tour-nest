@@ -180,6 +180,10 @@ Coordinates are `[longitude, latitude]` in the body.
 
 `admin` or `lead-guide`. Answer: `204`. Error: `404`.
 
+### `GET /api/v1/tours/top-5-cheap`
+
+Everyone. The 5 cheapest tours, cheapest first (when two cost the same, the better rated one comes first). Each tour has only `name`, `slug`, `price`, `duration`, `difficulty`, `summary`, `ratingsAverage`, `ratingsQuantity` and `imageCover`. Answer: `200`, `results`, `data.tours`. The same list, with every field, is `GET /api/v1/tours?sort=price,-ratingsAverage&limit=5`.
+
 ### `GET /api/v1/tours/tour-stats`
 
 Everyone. Numbers for each difficulty: `difficulty`, `numTours`, `numRatings`, `avgRating`, `avgPrice`, `minPrice`, `maxPrice`. Answer: `200`, `data.stats`.
