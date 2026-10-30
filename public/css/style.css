@@ -704,6 +704,47 @@ textarea.form__input {
   color: var(--muted);
 }
 
+/* The search form of the home page */
+.search {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px 14px;
+  align-items: end;
+  max-width: 1100px;
+  margin: 0 auto 22px;
+  padding: 16px 18px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.search__field--wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 520px) {
+  .search__field--wide {
+    grid-column: span 1;
+  }
+}
+
+.search__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.search__clear {
+  color: var(--muted);
+}
+
+.search__count {
+  max-width: 1100px;
+  margin: -8px auto 14px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 /* Bookings: the list in My tours and the payment pages */
 .booking {
   width: 100%;

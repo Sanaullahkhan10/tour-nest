@@ -6,8 +6,37 @@ block content
     h1.intro__title Explore the mountains and valleys of Pakistan
     p.intro__text Hand-picked trips to Hunza, Skardu, Fairy Meadows and more.
 
+  if search
+    form.search(method='get' action='/' role='search')
+      .search__field.search__field--wide
+        label.form__label(for='search-q') Search
+        input#search-q.form__input(type='search' name='q' maxlength='50' placeholder='Hunza, lakes, camping...' value=search.q)
+      .search__field
+        label.form__label(for='search-difficulty') Difficulty
+        select#search-difficulty.form__input(name='difficulty')
+          option(value='') Any
+          each level in ['easy', 'medium', 'difficult']
+            option(value=level selected=(search.difficulty === level))= level.charAt(0).toUpperCase() + level.slice(1)
+      .search__field
+        label.form__label(for='search-max-price') Top price (PKR)
+        input#search-max-price.form__input(type='number' name='maxPrice' min='1' max='99999999' inputmode='numeric' placeholder='Any' value=search.maxPrice)
+      .search__field
+        label.form__label(for='search-sort') Sort by
+        select#search-sort.form__input(name='sort')
+          each choice in sortLabels
+            option(value=choice[0] selected=(search.sort === choice[0]))= choice[1]
+      .search__actions
+        button.button(type='submit') Search
+        if anythingChanged
+          a.search__clear(href='/') Clear
+    if filtersActive && tours.length > 0
+      p.search__count #{tours.length} #{tours.length === 1 ? 'tour' : 'tours'} found
+
   if tours.length === 0
-    p.empty There are no tours yet. Please come back soon.
+    if filtersActive
+      p.empty No tours match your search. #[a(href='/') Clear the filters]
+    else
+      p.empty There are no tours yet. Please come back soon.
   else
     .card-grid
       each tour in tours

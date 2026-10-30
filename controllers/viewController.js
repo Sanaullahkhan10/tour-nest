@@ -4,6 +4,7 @@ const Review = require('../models/reviewModel');
 const User = require('../models/userModel');
 const Booking = require('../models/bookingModel');
 const { looksLikeSlug } = require('../utils/slug');
+const { readSearch, sortLabels } = require('../utils/tourSearch');
 const AppError = require('../utils/appError');
 const { buildMapPoints } = require('../utils/mapPoints');
 const { looksLikeToken } = require('../utils/resetToken');
@@ -15,8 +16,12 @@ const idPattern = /^[0-9a-fA-F]{24}$/;
 async function getOverview(req, res) {
   // lean() gives plain objects, which is all a page needs. We take only the fields the cards show.
   // The limit is a safety net. Paging for the website comes later.
-  const tours = await Tour.find()
-    .sort({ name: 1, _id: 1 })
+  // The search form of the page (?q=hunza&difficulty=easy&maxPrice=100000&sort=price-low).
+  // readSearch turns the address into a safe filter and a safe order. What it does not know is left out.
+  const search = readSearch(req.query);
+
+  const tours = await Tour.find(search.filter)
+    .sort(search.sort)
     .select('name duration maxGroupSize difficulty price summary ratingsAverage ratingsQuantity startDates slug imageCover')
     .limit(100)
     .lean();
@@ -24,6 +29,10 @@ async function getOverview(req, res) {
   res.status(200).render('overview', {
     title: 'All tours',
     tours: tours,
+    search: search.shown,
+    sortLabels: sortLabels,
+    filtersActive: search.filtersActive,
+    anythingChanged: search.anythingChanged,
   });
 }
 

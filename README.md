@@ -14,6 +14,7 @@ The live site runs on a free hosting plan. If nobody used it for a while, the fi
 
 - Browse the tours, see the details of each one: story, route day by day, start dates, price, guides, photo gallery and reviews.
 - A map of every tour (Leaflet and OpenStreetMap).
+- Search the tours by name or words in the summary, filter them by difficulty and top price, and sort the list, all on the home page.
 - Sign up, log in and log out. Forgot your password? A link in an email (it works for 10 minutes, once) lets you choose a new one.
 - My account: change your name, email, password and photo, or close your account.
 - Write, change and delete your review of a tour (a rating from 1 to 5 and a text). Only guests with a paid booking of the tour can write one.
