@@ -5,6 +5,8 @@ const Tour = require('../models/tourModel');
 const AppError = require('../utils/appError');
 const payfast = require('../utils/payfast');
 const { chooseGateway } = require('../utils/payments');
+const User = require('../models/userModel');
+const emailService = require('../utils/email');
 
 const idShape = /^[0-9a-fA-F]{24}$/;
 
@@ -41,6 +43,17 @@ function markPaid(bookingId, transactionId, fromStatuses) {
     { status: 'paid', paidAt: new Date(), transactionId: transactionId },
     { returnDocument: 'after' }
   );
+}
+
+// Sends the confirmation email of a booking that has just become paid. It runs in the background:
+// a failed email (or a user who cannot be found) never undoes or delays a payment.
+function sendBookingConfirmation(booking) {
+  emailService.sendInBackground('booking confirmation email', async () => {
+    const user = await User.findById(booking.user);
+    if (user) {
+      await emailService.sendBookingEmail(user, booking, emailService.readSiteUrl());
+    }
+  });
 }
 
 // POST /api/v1/bookings - the logged-in user books a tour. The price is worked out here from the
@@ -236,6 +249,8 @@ async function demoPay(req, res) {
     throw new AppError('This booking is not waiting for a payment', 400);
   }
 
+  sendBookingConfirmation(paid);
+
   res.status(200).json({
     status: 'success',
     data: {
@@ -295,6 +310,10 @@ async function applyPayfastResult(params) {
   }
   // A customer may have cancelled while paying. The money is taken, so the booking counts as paid.
   const paid = await markPaid(booking._id, answer.transactionId || 'PAYFAST', ['pending', 'cancelled']);
+  // The email goes out only for the message that really changed the booking, not for a repeat of it.
+  if (paid) {
+    sendBookingConfirmation(paid);
+  }
   return { outcome: 'paid', booking: paid || booking };
 }
 

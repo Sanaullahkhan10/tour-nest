@@ -2,6 +2,7 @@
 const Tour = require('../models/tourModel');
 const Review = require('../models/reviewModel');
 const User = require('../models/userModel');
+const Booking = require('../models/bookingModel');
 const { looksLikeSlug } = require('../utils/slug');
 const AppError = require('../utils/appError');
 const { buildMapPoints } = require('../utils/mapPoints');
@@ -91,6 +92,13 @@ async function getTour(req, res) {
     }
   }
 
+  // A guest can write a review only after a paid booking of this tour. (Somebody who already has a review
+  // can always change or delete it, so we do not look for the booking then.)
+  let canReview = false;
+  if (res.locals.user && res.locals.user.role === 'user' && !myReview) {
+    canReview = Boolean(await Booking.exists({ user: res.locals.user._id, tour: tour._id, status: 'paid' }));
+  }
+
   // The places of the tour in the order of its days (we copy the list before sorting it).
   const stops = (tour.locations || []).slice();
   stops.sort((a, b) => a.day - b.day);
@@ -112,6 +120,7 @@ async function getTour(req, res) {
     reviews: reviews,
     startDates: startDates,
     myReview: myReview,
+    canReview: canReview,
     tourId: String(tour._id),
     mapPoints: buildMapPoints(tour),
     guides: await findGuides(tour.guides),

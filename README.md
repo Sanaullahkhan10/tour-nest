@@ -16,10 +16,10 @@ The live site runs on a free hosting plan. If nobody used it for a while, the fi
 - A map of every tour (Leaflet and OpenStreetMap).
 - Sign up, log in and log out. Forgot your password? A link in an email (it works for 10 minutes, once) lets you choose a new one.
 - My account: change your name, email, password and photo, or close your account.
-- Write, change and delete your review of a tour (a rating from 1 to 5 and a text).
+- Write, change and delete your review of a tour (a rating from 1 to 5 and a text). Only guests with a paid booking of the tour can write one.
 - Book a tour for a start date, with the number of guests. The server works out the price and checks that places are left.
 - Pay with **PayFast** (the payment service of Pakistan), or with a **demo checkout** that takes no money (see "Payments" below).
-- My tours: all your bookings, with the status of each.
+- My tours: all your bookings, with the status of each. A confirmation email is sent when a booking is paid.
 
 **For the staff** (roles: `guide`, `lead-guide`, `admin`)
 

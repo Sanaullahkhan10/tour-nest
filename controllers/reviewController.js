@@ -1,6 +1,7 @@
 // controllers/reviewController.js - the functions that handle review requests.
 const Review = require('../models/reviewModel');
 const Tour = require('../models/tourModel');
+const Booking = require('../models/bookingModel');
 const AppError = require('../utils/appError');
 const { buildPaging } = require('../utils/paging');
 
@@ -31,6 +32,12 @@ async function createReview(req, res) {
   const tour = await Tour.findById(req.params.tourId);
   if (!tour) {
     throw new AppError('No tour found with that id', 404);
+  }
+
+  // Only a guest who has booked and paid this tour can review it.
+  const booked = await Booking.exists({ user: req.user._id, tour: tour._id, status: 'paid' });
+  if (!booked) {
+    throw new AppError('You can review a tour only after you have booked it. Please book the tour first', 403);
   }
 
   let newReview;

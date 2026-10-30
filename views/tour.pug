@@ -57,6 +57,8 @@ block content
         p.empty #[a(href='/login') Log in] to write a review.
       else if user.role !== 'user'
         p.empty Only visitors with a normal user account can write reviews.
+      else if !myReview && !canReview
+        p.empty Only guests with a paid booking of this tour can write a review.
       else
         form#review-form.form.review-form(method='post' data-mode=(myReview ? 'update' : 'create') data-tour=tourId data-review=(myReview ? myReview._id : false))
           label.form__label(for='rating') Rating

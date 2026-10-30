@@ -210,7 +210,7 @@ Everyone. The reviews of one tour, newest first. Query: `page`, `limit` (nothing
 
 ### `POST /api/v1/tours/:tourId/reviews`
 
-Login needed, and the role `user`. Body: `review` (text, up to 1000 characters) and `rating` (a number from 1 to 5). One review for each user and tour (`400` for a second one). Answer: `201`, `data.review`. The rating numbers of the tour are worked out again.
+Login needed, and the role `user`. Body: `review` (text, up to 1000 characters) and `rating` (a number from 1 to 5). You need a **paid booking** of this tour (`403` without one). One review for each user and tour (`400` for a second one). Answer: `201`, `data.review`. The rating numbers of the tour are worked out again.
 
 ### `PATCH /api/v1/reviews/:id`
 
@@ -230,6 +230,8 @@ Two payment ways exist. Which one a booking uses is set when it is made (`gatewa
 
 - `payfast`: the customer pays on the page of **PayFast** (Pakistan). It is used when `PAYFAST_MERCHANT_ID` and `PAYFAST_SECURED_KEY` are set.
 - `demo`: a pretend checkout. **No money is taken.** It is used when PayFast is not set up, so the whole flow can be shown.
+
+When a booking becomes `paid`, the customer gets a confirmation email. It is sent in the background: a failed email never undoes the payment.
 
 ### `POST /api/v1/bookings`
 

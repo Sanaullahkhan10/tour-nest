@@ -112,6 +112,51 @@ function buildResetEmail(user, link) {
   return { to: user.email, subject: 'Your Tour Nest password reset link', text: text, html: html };
 }
 
+// "15 April 2027". The start dates are saved at midnight UTC, so we read them in UTC too.
+function formatLongDate(date) {
+  return new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+}
+
+// "PKR 190,000"
+function formatMoney(amount) {
+  return 'PKR ' + Number(amount).toLocaleString('en-US');
+}
+
+// The email the customer gets when a booking is paid.
+function buildBookingEmail(user, booking, siteUrl) {
+  const name = firstName(user);
+  const date = formatLongDate(booking.startDate);
+  const total = formatMoney(booking.amount);
+  const demoNote = booking.gateway === 'demo' ? 'This was a demo payment: no real money was taken.' : '';
+
+  const text =
+    'Hi ' + name + ',\n\nYour booking is confirmed and paid. Thank you!\n\n' +
+    'Tour: ' + booking.tourName + '\n' +
+    'Start date: ' + date + '\n' +
+    'Guests: ' + booking.guests + '\n' +
+    'Total: ' + total + '\n' +
+    'Reference: ' + booking.basketId + '\n\n' +
+    'See all your bookings: ' + siteUrl + '/my-tours\n' +
+    (demoNote ? '\n' + demoNote + '\n' : '');
+  const html =
+    '<p>Hi ' + escapeHtml(name) + ',</p>' +
+    '<p>Your booking is confirmed and paid. Thank you!</p>' +
+    '<ul>' +
+    '<li>Tour: ' + escapeHtml(booking.tourName) + '</li>' +
+    '<li>Start date: ' + escapeHtml(date) + '</li>' +
+    '<li>Guests: ' + escapeHtml(booking.guests) + '</li>' +
+    '<li>Total: ' + escapeHtml(total) + '</li>' +
+    '<li>Reference: ' + escapeHtml(booking.basketId) + '</li>' +
+    '</ul>' +
+    '<p><a href="' + escapeHtml(siteUrl) + '/my-tours">See all your bookings</a></p>' +
+    (demoNote ? '<p>' + escapeHtml(demoNote) + '</p>' : '');
+  return { to: user.email, subject: 'Your Tour Nest booking is confirmed', text: text, html: html };
+}
+
+function sendBookingEmail(user, booking, siteUrl) {
+  return sendEmail(buildBookingEmail(user, booking, siteUrl));
+}
+
 function sendWelcomeEmail(user, siteUrl) {
   return sendEmail(buildWelcomeEmail(user, siteUrl));
 }
@@ -137,7 +182,9 @@ module.exports = {
   sendEmail,
   buildWelcomeEmail,
   buildResetEmail,
+  buildBookingEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
+  sendBookingEmail,
   sendInBackground,
 };

@@ -9,6 +9,7 @@ const app = require('../app');
 const User = require('../models/userModel');
 const Tour = require('../models/tourModel');
 const Review = require('../models/reviewModel');
+const Booking = require('../models/bookingModel');
 const { signToken, cookieName } = require('../utils/token');
 const { startApp } = require('./helpers');
 
@@ -58,7 +59,7 @@ describe('review form template', () => {
   });
 
   it('shows an empty form to a user who has not reviewed this tour yet', async () => {
-    const html = await renderTour({ user: { name: 'Ayesha', role: 'user' }, myReview: null });
+    const html = await renderTour({ user: { name: 'Ayesha', role: 'user' }, myReview: null, canReview: true });
     assert.ok(html.includes('Write a review'));
     assert.ok(html.includes('id="review-form"'));
     assert.ok(html.includes('data-mode="create"'));
@@ -109,6 +110,8 @@ describe('review form on the tour page route', () => {
     };
     mock.method(Review, 'find', () => reviewChain);
     findOne = mock.method(Review, 'findOne', () => ({ lean: () => Promise.resolve(mine) }));
+    // The visitor has a paid booking, so the review form is offered (the rule itself is tested in tests/booking-extras.test.js).
+    mock.method(Booking, 'exists', async () => ({ _id: 'b1' }));
     site = await startApp();
   });
   after(async () => {
