@@ -285,4 +285,4 @@ For the hosting service: `200` with `{ "status": "ok", "database": "connected" }
 
 ## The pages of the website
 
-These are for browsers, not for programs: `/` (all tours), `/tours/:idOrSlug`, `/login`, `/signup`, `/forgot-password`, `/reset-password/:token`, `/me` (account), `/my-tours` (bookings), `/pay/:id` (payment) and `/payment/payfast/success` and `/payment/payfast/failure` (where PayFast sends the customer back).
+These are for browsers, not for programs: `/` (all tours), `/tours/:idOrSlug`, `/login`, `/signup`, `/forgot-password`, `/reset-password/:token`, `/me` (account), `/my-tours` (bookings), `/pay/:id` (payment) and `/payment/payfast/success` and `/payment/payfast/failure` (where PayFast sends the customer back). The pages with fixed text are `/contact`, `/terms`, `/refund-policy` and `/privacy`.

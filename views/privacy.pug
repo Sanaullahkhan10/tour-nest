@@ -1,0 +1,40 @@
+//- views/privacy.pug - the privacy policy: what we keep, why, and who helps us.
+extends base
+
+block content
+  article.legal
+    h1 Privacy policy
+    p.legal__updated Last updated: October 2026
+    include _mode-notice
+
+    h2 What we keep
+    ul.legal__list
+      li Your account: name, email and password. The password is kept only as a one-way hash, so nobody can read it, not even us.
+      li Your photo, if you choose one.
+      li Your bookings: the tour, the date, the number of guests, your mobile number, the amount and a payment reference.
+      li Your reviews.
+      li Technical records of the hosting service, like the address of your device and the pages you opened, to keep the site working and safe.
+
+    h2 Why we keep it
+    p To run your account, make and confirm your bookings, take payments, send you the emails you need (welcome, password reset and booking confirmation), keep records, and protect the site from misuse.
+
+    h2 Cookies
+    p We use one cookie, called #[code= cookieName]. It keeps you logged in. It cannot be read by scripts on the page. We use no advertising or tracking cookies.
+
+    h2 Who helps us
+    p We do not sell your data. These services help us run the site, and they see only what they need:
+    ul.legal__list
+      li PayFast, for payments (you pay on their page).
+      li Brevo, to send emails.
+      li MongoDB Atlas, where the data is kept.
+      li Render, the hosting service.
+      li OpenStreetMap, which sends the map pictures. It can see your device address and the area of the map you look at.
+
+    h2 How long we keep it
+    p We keep your account while you have it. When you close your account, it disappears from the site, but we may keep booking records as long as we need them for accounting and the law. If you want your data deleted, ask us.
+
+    h2 Your choices
+    p In #[a(href='/me') My account] you can change your name, email, password and photo, or close your account. To see, correct or delete your data, please #[a(href='/contact') contact us].
+
+    h2 Changes
+    p We may change this policy. The date at the top shows the last change.

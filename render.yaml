@@ -28,6 +28,7 @@ services:
       # Payments: PAYMENT_GATEWAY (demo or payfast), PAYFAST_MERCHANT_ID, PAYFAST_SECURED_KEY,
       # PAYFAST_MERCHANT_NAME and PAYFAST_BASE_URL are added by hand in the Render dashboard (see .env.example).
       # Without them, bookings use the demo checkout (a pretend payment).
+      # BUSINESS_NAME, BUSINESS_ADDRESS, BUSINESS_PHONE and BUSINESS_EMAIL (the Contact page) are also added by hand there.
       # How many proxies sit in front of the app on Render. We measured it after the first deploy: 3.
       - key: TRUST_PROXY_HOPS
         value: "3"

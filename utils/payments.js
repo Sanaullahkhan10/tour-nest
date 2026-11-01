@@ -14,6 +14,27 @@ function chooseGateway() {
   return payfast.isConfigured() ? 'payfast' : 'demo';
 }
 
+// Which kind of payment the site uses right now, so the text of the pages never says that real money is taken when it is not:
+//   "demo": a pretend checkout, "test": the PayFast test server (no real money), "live": real money.
+// When a setting is wrong, the answer is "demo" or "test", never "live".
+function paymentMode() {
+  let gateway;
+  try {
+    gateway = chooseGateway();
+  } catch (error) {
+    return 'demo';
+  }
+  if (gateway === 'demo') {
+    return 'demo';
+  }
+  try {
+    return payfast.formOrigin() === payfast.defaultBaseUrl ? 'test' : 'live';
+  } catch (error) {
+    return 'test';
+  }
+}
+
 module.exports = {
   chooseGateway,
+  paymentMode,
 };

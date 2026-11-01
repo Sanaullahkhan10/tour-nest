@@ -1,0 +1,19 @@
+//- views/contact.pug - how to reach the business. The details come from the BUSINESS_ settings (see utils/business.js).
+extends base
+
+block content
+  article.legal
+    h1 Contact us
+    if business.hasDetails
+      p You can reach #{business.name} here:
+      ul.legal__list
+        if business.address
+          li #[strong Address:] #{business.address}
+        if business.phone
+          li #[strong Phone:] #[a(href='tel:' + business.phoneLink)= business.phone]
+        if business.email
+          li #[strong Email:] #[a(href='mailto:' + business.email)= business.email]
+    else
+      p Contact details will be added here soon.
+    p For a question about a booking, please write the booking reference (it starts with TN-) in your message. You can find it in #[a(href='/my-tours') My tours].
+    p Before you book, please read the #[a(href='/terms') terms of use], the #[a(href='/refund-policy') refund and cancellation policy] and the #[a(href='/privacy') privacy policy].

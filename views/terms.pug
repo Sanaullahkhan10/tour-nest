@@ -1,0 +1,47 @@
+//- views/terms.pug - the terms of use.
+extends base
+
+block content
+  article.legal
+    h1 Terms of use
+    p.legal__updated Last updated: October 2026
+    include _mode-notice
+
+    h2 1. Who we are
+    p Tour Nest is a website where you can look at tours in Pakistan, book a start date and pay for it. It is run by #{business.name}. These terms are an agreement between you and #{business.name}. By making an account or a booking, you accept them.
+
+    h2 2. Your account
+    p You must give true details, keep your password secret, and tell us if somebody else uses your account. You can close your account at any time in #[a(href='/me') My account].
+
+    h2 3. Bookings
+    p A booking is confirmed when the payment is received and you get a confirmation email. Before that, a booking only holds its places for 30 minutes, and then they are free for other people. Prices are in Pakistani rupees (PKR) for one person. The price you see when you book is the price you pay. The number of places on each start date is limited by the group size of the tour.
+
+    h2 4. Payments
+    if mode === 'demo'
+      p Real online payments are handled by our payment service, PayFast. They are not switched on yet: this site uses a demo checkout that takes no money.
+    else
+      p Payments are handled by our payment service, PayFast. We never see or save your card details.
+
+    h2 5. Changes and cancellations
+    p Please read our #[a(href='/refund-policy') refund and cancellation policy]. We may cancel or move a tour if it is not safe (for example bad weather, road closures or a security warning) or if too few guests booked. Then you can choose a full refund or another date.
+
+    h2 6. Travel in the mountains
+    p Trips in the north of Pakistan have risks, such as weather, road closures and high altitude. Please follow the instructions of your guides, bring a valid identity document, tell us before the trip about anything that may affect your safety, and think about travel and health insurance. You travel at your own responsibility.
+
+    h2 7. Reviews
+    p Only guests with a paid booking of a tour can review it. Please write what you really lived, and do not write anything insulting, unlawful or false. We may remove a review that breaks these rules.
+
+    h2 8. Using the site
+    p Please do not try to break the security of the site, overload it, or use it in a way that harms other people.
+
+    h2 9. Our responsibility
+    p We try to keep the information on the site correct, but we cannot promise that it has no mistakes. As far as the law allows, we are not responsible for losses that we could not reasonably have foreseen, or that come from things outside our control.
+
+    h2 10. Changes to these terms
+    p We may change these terms. The date at the top shows the last change. A change does not touch a booking that is already confirmed.
+
+    h2 11. Law
+    p These terms follow the laws of Pakistan.
+
+    h2 12. Questions
+    p Please use our #[a(href='/contact') contact page].

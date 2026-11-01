@@ -3,6 +3,7 @@ const express = require('express');
 const viewController = require('../controllers/viewController');
 const authController = require('../controllers/authController');
 const bookingViewController = require('../controllers/bookingViewController');
+const pageController = require('../controllers/pageController');
 
 const router = express.Router();
 
@@ -28,6 +29,12 @@ router.get('/forgot-password', authController.attachUser, viewController.getForg
 
 // GET /reset-password/:token  (the page of the link in the email)
 router.get('/reset-password/:token', authController.attachUser, viewController.getResetPasswordPage);
+
+// The pages with fixed text. They also run attachUser, so the header knows who is logged in.
+router.get('/contact', authController.attachUser, pageController.getContactPage);
+router.get('/terms', authController.attachUser, pageController.getTermsPage);
+router.get('/refund-policy', authController.attachUser, pageController.getRefundPage);
+router.get('/privacy', authController.attachUser, pageController.getPrivacyPage);
 
 // GET /my-tours  (the bookings of the logged-in visitor)
 router.get('/my-tours', authController.attachUser, bookingViewController.getMyToursPage);

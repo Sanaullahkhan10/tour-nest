@@ -745,6 +745,55 @@ textarea.form__input {
   font-size: 0.9rem;
 }
 
+/* The links in the footer, and the pages with fixed text (terms, refund policy, privacy, contact) */
+.footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 20px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.footer__links a {
+  color: var(--muted);
+}
+
+.footer__links a:hover {
+  color: var(--green-dark);
+}
+
+.legal {
+  max-width: 720px;
+  margin: 28px auto;
+  padding: 0 20px 20px;
+  line-height: 1.6;
+}
+
+.legal h1 {
+  margin: 0 0 6px;
+}
+
+.legal h2 {
+  margin: 26px 0 6px;
+  font-size: 1.15rem;
+}
+
+.legal p {
+  margin: 0 0 10px;
+}
+
+.legal__list {
+  margin: 0 0 10px;
+  padding-left: 22px;
+}
+
+.legal__updated {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 /* Bookings: the list in My tours and the payment pages */
 .booking {
   width: 100%;

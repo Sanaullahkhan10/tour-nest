@@ -1,0 +1,30 @@
+//- views/refund-policy.pug - cancellations and refunds.
+extends base
+
+block content
+  article.legal
+    h1 Refund and cancellation policy
+    p.legal__updated Last updated: October 2026
+    include _mode-notice
+
+    h2 Before you pay
+    p A booking that still waits for its payment can be cancelled at any time in #[a(href='/my-tours') My tours]. No money has been taken, so nothing is refunded.
+
+    h2 If you cancel after you paid
+    p A paid booking cannot be cancelled in the app. Please #[a(href='/contact') contact us] and write the booking reference. The refund depends on how many days are left before the start date, counted from the day we get your message:
+    ul.legal__list
+      li 30 days or more: a full refund.
+      li 15 to 29 days: a refund of 50%.
+      li Fewer than 15 days, or if you do not come: no refund.
+
+    h2 If you want another date
+    p You can move your booking to another start date of the same tour, free of charge, up to 30 days before the start date, if places are left.
+
+    h2 If we cancel
+    p If we cancel or move a tour (for example for safety, or because too few guests booked), you can choose a full refund or another date.
+
+    h2 How refunds are paid
+    p Refunds go back to the way you paid, through our payment service. We start the refund within 10 working days after we agree to it. Your bank may need more days to show it.
+
+    h2 Paid twice, or the payment failed but money left your account?
+    p Please #[a(href='/contact') contact us] with the booking reference and the time of the payment. We will check it with the payment service and put it right.

@@ -21,6 +21,7 @@ The live site runs on a free hosting plan. If nobody used it for a while, the fi
 - Book a tour for a start date, with the number of guests. The server works out the price and checks that places are left.
 - Pay with **PayFast** (the payment service of Pakistan), or with a **demo checkout** that takes no money (see "Payments" below).
 - My tours: all your bookings, with the status of each. A confirmation email is sent when a booking is paid.
+- Contact, Terms of use, Refund policy and Privacy pages. The pages say clearly when payments are only a demo or a test.
 
 **For the staff** (roles: `guide`, `lead-guide`, `admin`)
 
@@ -70,6 +71,7 @@ Copy `.env.example` to `.env` (`copy .env.example .env` on Windows) and fill in 
 | `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASSWORD`, `EMAIL_FROM` | Email. Leave `EMAIL_HOST` empty on your computer and emails are written in the terminal instead of being sent |
 | `PAYMENT_GATEWAY` | `demo` or `payfast` (empty: PayFast if its secrets are set, demo if not) |
 | `PAYFAST_MERCHANT_ID`, `PAYFAST_SECURED_KEY`, `PAYFAST_MERCHANT_NAME`, `PAYFAST_BASE_URL` | Your PayFast account (see "Payments") |
+| `BUSINESS_NAME`, `BUSINESS_ADDRESS`, `BUSINESS_PHONE`, `BUSINESS_EMAIL` | The contact details on the Contact page |
 
 Then:
 

@@ -1,0 +1,5 @@
+//- views/_mode-notice.pug - tells the visitor when payments are not real. It shows nothing when real money is used.
+if mode === 'demo'
+  p.notice.notice--bad This site currently uses a demo checkout. No real money is taken and no real trip is sold.
+else if mode === 'test'
+  p.notice.notice--bad Payments are in test mode. No real money is taken.
