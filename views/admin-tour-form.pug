@@ -1,0 +1,117 @@
+//- views/admin-tour-form.pug - the form to add a tour or to change one, with its pictures.
+//- public/js/admin-tours.js reads the form and sends it to the API (and the pictures, in a second step).
+extends base
+
+mixin stopRow(stop)
+  .stop(data-stop)
+    .stop__field
+      label.form__label Day
+      input.form__input(type='number' min='1' step='1' data-field='day' value=stop.day)
+    .stop__field.stop__field--wide
+      label.form__label Place and what happens there
+      input.form__input(type='text' maxlength='200' data-field='description' value=stop.description)
+    .stop__field
+      label.form__label Latitude
+      input.form__input(type='text' inputmode='decimal' data-field='lat' value=stop.lat)
+    .stop__field
+      label.form__label Longitude
+      input.form__input(type='text' inputmode='decimal' data-field='lng' value=stop.lng)
+    button.button.button--small.button--ghost(type='button' data-remove-stop) Remove
+
+block content
+  .admin
+    h1.admin__title= isNew ? 'Add a tour' : 'Change the tour'
+    - var current = 'tours'
+    include _admin-nav
+
+    form#tour-form.admin-form(novalidate data-tour-id=tourId)
+      fieldset.admin-form__group
+        legend The tour
+        label.form__label(for='tour-name') Name (5 to 60 characters)
+        input#tour-name.form__input(type='text' name='name' maxlength='60' value=form.name)
+        label.form__label(for='tour-summary') Short summary (shown on the card)
+        textarea#tour-summary.form__input(name='summary' rows='2')= form.summary
+        label.form__label(for='tour-description') Longer description (shown on the tour page)
+        textarea#tour-description.form__input(name='description' rows='7')= form.description
+        .admin-form__row
+          div
+            label.form__label(for='tour-duration') Days
+            input#tour-duration.form__input(type='number' name='duration' min='1' step='1' value=form.duration)
+          div
+            label.form__label(for='tour-group') Group size (most guests)
+            input#tour-group.form__input(type='number' name='maxGroupSize' min='1' step='1' value=form.maxGroupSize)
+          div
+            label.form__label(for='tour-difficulty') Difficulty
+            select#tour-difficulty.form__input(name='difficulty')
+              each level in ['easy', 'medium', 'difficult']
+                option(value=level selected=(form.difficulty === level))= level.charAt(0).toUpperCase() + level.slice(1)
+          div
+            label.form__label(for='tour-price') Price for one person (PKR)
+            input#tour-price.form__input(type='number' name='price' min='0' step='1' value=form.price)
+        label.check
+          input(type='checkbox' name='secretTour' checked=form.secretTour)
+          |  Hide this tour from visitors
+
+      fieldset.admin-form__group
+        legend Start dates
+        label.form__label(for='tour-dates') One date on each line, like 2027-04-15
+        textarea#tour-dates.form__input(name='startDates' rows='4')= form.startDates
+
+      fieldset.admin-form__group
+        legend Where the tour starts
+        label.form__label(for='tour-start-address') Address or meeting point
+        input#tour-start-address.form__input(type='text' name='startAddress' maxlength='200' value=form.startAddress)
+        label.form__label(for='tour-start-description') What the meeting point is (optional)
+        input#tour-start-description.form__input(type='text' name='startDescription' maxlength='200' value=form.startDescription)
+        .admin-form__row
+          div
+            label.form__label(for='tour-start-lat') Latitude (like 36.3269)
+            input#tour-start-lat.form__input(type='text' inputmode='decimal' name='startLat' value=form.startLat)
+          div
+            label.form__label(for='tour-start-lng') Longitude (like 74.6614)
+            input#tour-start-lng.form__input(type='text' inputmode='decimal' name='startLng' value=form.startLng)
+        p.form__hint Tip: on Google Maps or OpenStreetMap, right-click a place and copy its two numbers.
+
+      fieldset.admin-form__group
+        legend The stops of the tour (they make the map and the day by day list)
+        #stops
+          each stop in form.locations
+            +stopRow(stop)
+        button.button.button--small.button--ghost(type='button' data-add-stop) Add a stop
+        template#stop-template
+          +stopRow({})
+
+      fieldset.admin-form__group
+        legend Guides (up to 5)
+        if guides.length === 0
+          p.form__hint There are no guides yet. Make a user a guide first.
+        else
+          each guide in guides
+            label.check
+              input(type='checkbox' name='guides' value=String(guide._id) checked=form.guideIds.includes(String(guide._id)))
+              |  #{guide.name} (#{guide.role})
+
+      fieldset.admin-form__group
+        legend Pictures
+        p.form__hint JPEG, PNG or WebP, up to 5 MB each. New pictures replace the old ones of the same kind.
+        if form.imageCover
+          p.form__label Cover now
+          img.admin-form__preview(src='/img/' + form.imageCover alt='Cover picture')
+        label.form__label(for='tour-cover') Cover picture
+        input#tour-cover.form__input(type='file' name='imageCover' accept='image/jpeg,image/png,image/webp')
+        if form.images.length > 0
+          p.form__label Gallery now
+          .admin-form__previews
+            each image in form.images
+              img.admin-form__preview(src='/img/' + image alt='Gallery picture')
+        label.form__label(for='tour-gallery') Gallery pictures (up to 3)
+        input#tour-gallery.form__input(type='file' name='images' accept='image/jpeg,image/png,image/webp' multiple)
+
+      p.form__message(role='alert' aria-live='polite' data-message)
+      .admin__actions
+        button.button(type='submit') Save the tour
+        a.button.button--ghost(href='/admin/tours') Back to the list
+        unless isNew
+          button.button.button--danger(type='button' data-delete-tour=tourId data-name=form.name) Delete the tour
+
+  script(src='/js/admin-tours.js' defer)

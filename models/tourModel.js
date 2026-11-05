@@ -220,6 +220,11 @@ tourSchema.pre('save', function () {
 // The ones that change or delete a tour (findByIdAndUpdate, findByIdAndDelete) are not listed on purpose,
 // so the staff can still manage a secret tour.
 function hideSecretTours() {
+  // The admin pages ask for every tour with .setOptions({ includeSecret: true }). Only our own code sets this option,
+  // never the address of a request, and only behind the staff guard.
+  if (this.getOptions().includeSecret) {
+    return;
+  }
   this.where({ secretTour: { $ne: true } });
 }
 tourSchema.pre('find', hideSecretTours);

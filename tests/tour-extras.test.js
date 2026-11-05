@@ -52,6 +52,10 @@ function searchResult(value) {
       return Promise.resolve(value);
     },
     lean: () => Promise.resolve(value),
+    // The pictures route asks for hidden tours too (setOptions) and then waits for the tour.
+    setOptions: function () {
+      return this;
+    },
     then: (done, failed) => Promise.resolve(value).then(done, failed),
   };
 }

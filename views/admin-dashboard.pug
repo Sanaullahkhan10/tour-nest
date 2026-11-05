@@ -1,0 +1,53 @@
+//- views/admin-dashboard.pug - the first page of the admin panel.
+extends base
+
+block content
+  .admin
+    h1.admin__title Admin
+    - var current = 'dashboard'
+    include _admin-nav
+
+    section.stats
+      .stat
+        .stat__number= stats.toursTotal
+        .stat__label Tours
+        .stat__note #{stats.toursVisible} visible, #{stats.toursHidden} hidden
+      .stat
+        .stat__number= stats.users
+        .stat__label Users
+        .stat__note Open accounts
+      .stat
+        .stat__number= stats.bookings.paid
+        .stat__label Paid bookings
+        .stat__note #{stats.bookings.pending} waiting, #{stats.bookings.cancelled} cancelled
+      .stat
+        .stat__number= formatPrice(stats.revenue)
+        .stat__label Paid bookings total
+        .stat__note Demo payments are counted too
+
+    .admin__actions
+      a.button(href='/admin/tours/new') Add a tour
+      a.button.button--ghost(href='/admin/tours') All tours
+
+    h2.admin__subtitle Newest bookings
+    if recent.length === 0
+      p.empty No bookings yet.
+    else
+      .table-wrap
+        table.table
+          thead
+            tr
+              th Guest
+              th Tour
+              th Start date
+              th Total
+              th Status
+          tbody
+            each booking in recent
+              tr
+                td= booking.user ? booking.user.name : '(closed account)'
+                td= booking.tourName
+                td= formatDate(booking.startDate)
+                td= formatPrice(booking.amount)
+                td
+                  span.badge(class='badge--' + booking.status)= booking.status

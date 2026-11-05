@@ -1,0 +1,4 @@
+//- views/_admin-nav.pug - the tabs of the admin pages. The page sets "current" before it includes this file.
+nav.admin-nav(aria-label='Admin pages')
+  a.admin-nav__link(href='/admin' class=(current === 'dashboard' ? 'is-current' : '')) Dashboard
+  a.admin-nav__link(href='/admin/tours' class=(current === 'tours' ? 'is-current' : '')) Tours

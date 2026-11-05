@@ -334,6 +334,9 @@ async function deleteTour(req, res) {
   } catch (error) {
     console.error('Could not delete the reviews of the deleted tour:', error.message);
   }
+  // Its pictures are saved in the database too, so they go with it. (removeImages only logs a failure.)
+  await removeImages([tour.imageCover].concat(tour.images || []));
+
   // 204 means "done, and there is nothing to send back", so there is no body.
   res.status(204).send();
 }
@@ -672,7 +675,8 @@ async function updateTourImages(req, res) {
     throw new AppError('Please send imageCover (one file) and/or images (up to three files)', 400);
   }
 
-  const tour = await Tour.findById(req.params.id);
+  // The staff may add pictures to a hidden tour too.
+  const tour = await Tour.findById(req.params.id).setOptions({ includeSecret: true });
   if (!tour) {
     throw new AppError('No tour found with that id', 404);
   }

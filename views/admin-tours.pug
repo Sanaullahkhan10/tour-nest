@@ -1,0 +1,55 @@
+//- views/admin-tours.pug - every tour, with the buttons to edit, hide or show, and delete.
+//- public/js/admin-tours.js makes the Hide, Show and Delete buttons work.
+extends base
+
+block content
+  .admin
+    h1.admin__title Admin
+    - var current = 'tours'
+    include _admin-nav
+
+    .admin__actions
+      a.button(href='/admin/tours/new') Add a tour
+
+    if tours.length === 0
+      p.empty There are no tours yet. Add the first one.
+    else
+      .table-wrap
+        table.table
+          thead
+            tr
+              th
+              th Tour
+              th Difficulty
+              th Days
+              th Price
+              th Start dates
+              th Status
+              th Actions
+          tbody
+            each tour in tours
+              tr
+                td
+                  if tour.imageCover
+                    img.table__thumb(src='/img/' + tour.imageCover alt='' width='56' height='36' loading='lazy')
+                  else
+                    span.table__thumb.table__thumb--empty
+                td
+                  a(href='/admin/tours/' + tour._id)= tour.name
+                td= tour.difficulty
+                td= tour.duration
+                td= formatPrice(tour.price)
+                td= (tour.startDates || []).length
+                td
+                  if tour.secretTour
+                    span.badge.badge--hidden Hidden
+                  else
+                    span.badge.badge--paid Visible
+                td.table__actions
+                  a.button.button--small(href='/admin/tours/' + tour._id) Edit
+                  unless tour.secretTour
+                    a.button.button--small.button--ghost(href='/tours/' + (tour.slug || tour._id) target='_blank' rel='noopener') View
+                  button.button.button--small.button--ghost(type='button' data-toggle-hidden=String(tour._id) data-hidden=String(Boolean(tour.secretTour)))= tour.secretTour ? 'Show' : 'Hide'
+                  button.button.button--small.button--danger(type='button' data-delete-tour=String(tour._id) data-name=tour.name) Delete
+
+  script(src='/js/admin-tours.js' defer)

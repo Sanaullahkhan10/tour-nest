@@ -285,4 +285,4 @@ For the hosting service: `200` with `{ "status": "ok", "database": "connected" }
 
 ## The pages of the website
 
-These are for browsers, not for programs: `/` (all tours), `/tours/:idOrSlug`, `/login`, `/signup`, `/forgot-password`, `/reset-password/:token`, `/me` (account), `/my-tours` (bookings), `/pay/:id` (payment) and `/payment/payfast/success` and `/payment/payfast/failure` (where PayFast sends the customer back). The pages with fixed text are `/contact`, `/terms`, `/refund-policy` and `/privacy`.
+These are for browsers, not for programs: `/` (all tours), `/tours/:idOrSlug`, `/login`, `/signup`, `/forgot-password`, `/reset-password/:token`, `/me` (account), `/my-tours` (bookings), `/pay/:id` (payment) and `/payment/payfast/success` and `/payment/payfast/failure` (where PayFast sends the customer back). The pages with fixed text are `/contact`, `/terms`, `/refund-policy` and `/privacy`. The admin panel (roles `admin` and `lead-guide` only) is `/admin` (dashboard), `/admin/tours`, `/admin/tours/new` and `/admin/tours/:id`. It uses the API above to save its changes.

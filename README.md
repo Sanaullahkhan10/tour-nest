@@ -26,6 +26,7 @@ The live site runs on a free hosting plan. If nobody used it for a while, the fi
 **For the staff** (roles: `guide`, `lead-guide`, `admin`)
 
 - A full API to create, change and delete tours, and to upload their cover and gallery pictures.
+- An admin panel in the browser (`/admin`) for the staff: a dashboard, and pages to add, change, hide and delete tours, with their stops, guides and pictures.
 - Statistics, a plan of the tour starts for each month, and searches by place (tours within a distance, distance to every tour).
 - Admins manage users and roles, and see all the bookings.
 
